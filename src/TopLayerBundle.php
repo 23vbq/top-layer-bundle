@@ -32,7 +32,7 @@ final class TopLayerBundle extends AbstractBundle
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        if (!interface_exists(AssetMapperInterface::class)) {
+        if (!$this->isAssetMapperAvailable($builder)) {
             return;
         }
 
@@ -43,5 +43,24 @@ final class TopLayerBundle extends AbstractBundle
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Same check as symfony/stimulus-bundle and symfony/ux-turbo.
+     */
+    private function isAssetMapperAvailable(ContainerBuilder $builder): bool
+    {
+        if (!interface_exists(AssetMapperInterface::class)) {
+            return false;
+        }
+
+        $bundlesMetadata = $builder->getParameter('kernel.bundles_metadata');
+        if (!\is_array($bundlesMetadata) || !\is_array($bundlesMetadata['FrameworkBundle'] ?? null)) {
+            return false;
+        }
+
+        $frameworkBundlePath = $bundlesMetadata['FrameworkBundle']['path'] ?? null;
+
+        return \is_string($frameworkBundlePath) && is_file($frameworkBundlePath.'/Resources/config/asset_mapper.php');
     }
 }

@@ -2,19 +2,12 @@
 
 namespace Vbq23\TopLayerBundle\Tests\Integration;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\AssetMapper\AssetMapperRepository;
 use Twig\Loader\FilesystemLoader;
-use Vbq23\TopLayerBundle\Tests\Fixtures\TestKernel;
 use Vbq23\TopLayerBundle\TopLayerBundle;
 
-final class BundleWiringTest extends KernelTestCase
+final class BundleWiringTest extends IntegrationTestCase
 {
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
-    }
-
     public function testBundleIsRegistered(): void
     {
         self::bootKernel();
@@ -38,6 +31,7 @@ final class BundleWiringTest extends KernelTestCase
         $repository = self::getContainer()->get('asset_mapper.repository');
         self::assertInstanceOf(AssetMapperRepository::class, $repository);
 
-        self::assertContains('@23vbq/top-layer-bundle', $repository->allDirectories());
+        $directories = $repository->allDirectories();
+        self::assertSame('@23vbq/top-layer-bundle', $directories[realpath(__DIR__.'/../../assets/src')] ?? null);
     }
 }

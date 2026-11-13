@@ -31,7 +31,7 @@ final class TestKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir().'/top-layer-bundle/cache/'.$this->environment;
+        return sys_get_temp_dir().'/top-layer-bundle/cache/'.self::VERSION.'/'.$this->environment;
     }
 
     public function getLogDir(): string
