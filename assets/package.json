@@ -1,0 +1,21 @@
+{
+    "name": "@23vbq/top-layer-bundle",
+    "description": "Native <dialog> modals, drawers and toasts for Symfony with Turbo and Stimulus",
+    "version": "0.1.0",
+    "license": "MIT",
+    "type": "module",
+    "keywords": [
+        "symfony-ux"
+    ],
+    "symfony": {
+        "controllers": {},
+        "importmap": {
+            "@hotwired/stimulus": "^3.0",
+            "@hotwired/turbo": "^7.2 || ^8.0"
+        }
+    },
+    "peerDependencies": {
+        "@hotwired/stimulus": "^3.0",
+        "@hotwired/turbo": "^7.2 || ^8.0"
+    }
+}
