@@ -74,6 +74,31 @@ final class TemplateRenderingTest extends IntegrationTestCase
         self::assertStringContainsString('data-action="23vbq--top-layer-bundle--dialog#close"', $html);
     }
 
+    #[DataProvider('componentNames')]
+    public function testCloseButtonHasDefaultLabel(string $component): void
+    {
+        $html = $this->render("<twig:TopLayer:{$component} id=\"d\" frame=\"f\" />");
+
+        self::assertStringContainsString('aria-label="Close"', $html);
+    }
+
+    #[DataProvider('componentNames')]
+    public function testCloseLabelCanBeChanged(string $component): void
+    {
+        $html = $this->render("<twig:TopLayer:{$component} id=\"d\" frame=\"f\" closeLabel=\"Zamknij\" />");
+
+        self::assertStringContainsString('aria-label="Zamknij"', $html);
+        self::assertStringNotContainsString('aria-label="Close"', $html);
+    }
+
+    #[DataProvider('componentNames')]
+    public function testAriaLabelIsPassedToDialog(string $component): void
+    {
+        $html = $this->render("<twig:TopLayer:{$component} id=\"d\" frame=\"f\" aria-label=\"Preview\" />");
+
+        self::assertMatchesRegularExpression('/<dialog[^>]*aria-label="Preview"/', $html);
+    }
+
     #[DataProvider('requiredProps')]
     public function testMissingRequiredPropFails(string $component, string $attributes, string $missing): void
     {

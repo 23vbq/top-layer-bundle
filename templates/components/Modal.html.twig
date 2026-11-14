@@ -1,4 +1,4 @@
-{% props id, frame, title = null, width = null, height = null, frameClass = null %}
+{% props id, frame, title = null, width = null, height = null, frameClass = null, closeLabel = 'Close' %}
 {%- set style = [
     width ? '--top-layer-width: ' ~ width : null,
     attributes.render('style')|default('')|trim(' ;'),
@@ -9,7 +9,7 @@
         {% if style %}style="{{ style }}"{% endif %}
         {{ attributes.defaults({class: 'top-layer-modal'}) }}>
     <div class="top-layer-modal__panel"{% if height %} style="--top-layer-height: {{ height }}"{% endif %}>
-        {{ include('@TopLayer/_dialog_header.html.twig', {id: id, title: title}, with_context: false) }}
+        {{ include('@TopLayer/_dialog_header.html.twig', {id: id, title: title, closeLabel: closeLabel}, with_context: false) }}
 
         <turbo-frame id="{{ frame }}" class="top-layer-frame{% if frameClass %} {{ frameClass }}{% endif %}"></turbo-frame>
     </div>

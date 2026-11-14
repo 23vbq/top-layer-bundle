@@ -61,8 +61,17 @@ A drawer works the same way and slides in from the right:
 | `width` | Modal, Drawer | no | Any CSS length, e.g. `600px` or `min(90vw, 1200px)` |
 | `height` | Modal | no | Fixed panel height, e.g. `70vh` |
 | `frameClass` | Modal, Drawer | no | Extra classes on the `<turbo-frame>` |
+| `closeLabel` | Modal, Drawer | no | Accessible label of the close button, `Close` by default |
 
 Any other attribute (`class`, `style`, `data-*`, ...) is added to the `<dialog>` element. Classes are appended to the bundle's own.
+
+Without a `title` the dialog has no accessible name, so give it an `aria-label`. Translate the labels the same way as any other text:
+
+```twig
+<twig:TopLayer:Modal id="preview" frame="preview-frame" aria-label="{{ 'Preview'|trans }}" closeLabel="{{ 'Close'|trans }}" />
+```
+
+Content taller than the dialog scrolls inside the frame, the header with the close button stays in place.
 
 ### Opening and closing
 

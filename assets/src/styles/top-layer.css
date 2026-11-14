@@ -25,8 +25,12 @@
         background: var(--top-layer-bg);
     }
 
-    .top-layer-modal *,
-    .top-layer-drawer * {
+    /* Only the bundle's own markup, the frame content is left to the application */
+    .top-layer-modal__panel,
+    .top-layer-drawer__panel,
+    .top-layer-header,
+    .top-layer-header *,
+    .top-layer-frame {
         box-sizing: border-box;
     }
 
@@ -86,6 +90,8 @@
         flex: 1 1 0%;
         flex-direction: column;
         min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
     /* Modal */
@@ -161,6 +167,7 @@
         height: 100%;
         max-height: 100%;
         margin: 0 0 0 auto;
+        overflow: hidden;
         border-left-width: 1px;
         box-shadow: var(--top-layer-drawer-shadow);
         translate: 100% 0;
