@@ -8,7 +8,16 @@
         "symfony-ux"
     ],
     "symfony": {
-        "controllers": {},
+        "controllers": {
+            "dialog": {
+                "main": "src/dialog_controller.js",
+                "fetch": "eager",
+                "enabled": true,
+                "autoimport": {
+                    "@23vbq/top-layer-bundle/styles/top-layer.css": true
+                }
+            }
+        },
         "importmap": {
             "@hotwired/stimulus": "^3.0",
             "@hotwired/turbo": "^7.2 || ^8.0"
