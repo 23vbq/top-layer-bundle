@@ -6,6 +6,9 @@
          colors="true"
          failOnWarning="true"
          failOnRisky="true">
+    <php>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+    </php>
     <testsuites>
         <testsuite name="TopLayerBundle Test Suite">
             <directory>tests</directory>
