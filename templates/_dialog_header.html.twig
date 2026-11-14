@@ -1,10 +1,9 @@
-<div class="flex h-[52px] shrink-0 items-center gap-3 border-b border-line px-5">
+<div class="top-layer-header">
     {% if title %}
-        <h2 id="{{ id }}-title" class="text-[15px] font-semibold text-ink">{{ title }}</h2>
+        <h2 id="{{ id }}-title" class="top-layer-title">{{ title }}</h2>
     {% endif %}
 
-    <button type="button" data-action="dialog#close" aria-label="Close"
-            class="ml-auto grid h-7 w-7 cursor-pointer place-items-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-ink">
-        <span class="w-[13px]">{{ source('svg/close.svg') }}</span>
+    <button type="button" data-action="dialog#close" aria-label="Close" class="top-layer-close">
+        <span class="top-layer-close__icon">{{ source('@TopLayer/svg/close.svg') }}</span>
     </button>
 </div>
