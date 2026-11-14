@@ -42,9 +42,11 @@ export default class extends Controller {
     }
 
     close(event) {
-        const origin = event.currentTarget instanceof Element ? event.currentTarget : event.target;
+        const origin = event?.currentTarget instanceof Element ? event.currentTarget : event?.target;
 
-        origin.closest('dialog')?.close();
+        if (origin instanceof Element) {
+            origin.closest('dialog')?.close();
+        }
     }
 
     // Turbo snapshots the page before disconnect() runs. An open dialog in the
@@ -54,14 +56,18 @@ export default class extends Controller {
     };
 
     // Stimulus casts params with JSON.parse, so id="42" or id="1e3" would become
-    // numbers. Read the raw attribute to keep ids and URLs as written.
+    // numbers. Read the raw attribute to keep ids and URLs as written, and fall
+    // back to params for programmatic calls, e.g. open({ params: { id, src } }).
     #param(event, name) {
-        const element = event.currentTarget;
+        const element = event?.currentTarget;
+        const attribute = `data-${this.identifier}-${name}-param`;
 
-        if (!(element instanceof Element)) {
-            return null;
+        if (element instanceof Element && element.hasAttribute(attribute)) {
+            return element.getAttribute(attribute) || null;
         }
 
-        return element.getAttribute(`data-${this.identifier}-${name}-param`) || null;
+        const value = event?.params?.[name];
+
+        return value != null && value !== '' ? String(value) : null;
     }
 }
