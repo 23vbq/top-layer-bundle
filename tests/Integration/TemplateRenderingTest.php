@@ -65,7 +65,7 @@ final class TemplateRenderingTest extends IntegrationTestCase
         self::assertStringContainsString('data-foo="bar"', $html);
     }
 
-    #[DataProvider('components')]
+    #[DataProvider('componentNames')]
     public function testComponentUsesBundleControllerIdentifier(string $component): void
     {
         $html = $this->render("<twig:TopLayer:{$component} id=\"d\" frame=\"f\" />");
@@ -78,7 +78,8 @@ final class TemplateRenderingTest extends IntegrationTestCase
     public function testMissingRequiredPropFails(string $component, string $attributes, string $missing): void
     {
         $this->expectException(RuntimeError::class);
-        $this->expectExceptionMessage("{$missing} should be defined");
+        // ux-twig-component 3.x quotes the prop name: 'Prop "id" should be defined'
+        $this->expectExceptionMessageMatches("/^(Prop \")?{$missing}\"? should be defined/");
 
         $this->render("<twig:TopLayer:{$component} {$attributes} />");
     }
@@ -90,6 +91,15 @@ final class TemplateRenderingTest extends IntegrationTestCase
     {
         yield 'modal' => ['Modal', 'top-layer-modal', '--top-layer-width'];
         yield 'drawer' => ['Drawer', 'top-layer-drawer', '--top-layer-drawer-width'];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function componentNames(): iterable
+    {
+        yield 'modal' => ['Modal'];
+        yield 'drawer' => ['Drawer'];
     }
 
     /**
