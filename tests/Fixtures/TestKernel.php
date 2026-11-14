@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\UX\StimulusBundle\StimulusBundle;
 use Symfony\UX\Turbo\TurboBundle;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 use Vbq23\TopLayerBundle\TopLayerBundle;
 
 final class TestKernel extends Kernel
@@ -21,6 +22,7 @@ final class TestKernel extends Kernel
         yield new TwigBundle();
         yield new StimulusBundle();
         yield new TurboBundle();
+        yield new TwigComponentBundle();
         yield new TopLayerBundle();
     }
 
@@ -48,6 +50,10 @@ final class TestKernel extends Kernel
             // FrameworkBundle 6.4.0 doesn't enable it on its own, but AssetMapper needs it
             'http_client' => true,
             'asset_mapper' => ['paths' => []],
+        ]);
+        $container->extension('twig_component', [
+            'anonymous_template_directory' => 'components/',
+            'defaults' => [],
         ]);
         $container->extension('top_layer', []);
     }

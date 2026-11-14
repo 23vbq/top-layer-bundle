@@ -2,6 +2,8 @@
 
 namespace Vbq23\TopLayerBundle\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\AssetMapper\AssetMapperRepository;
 use Twig\Loader\FilesystemLoader;
 use Vbq23\TopLayerBundle\TopLayerBundle;
@@ -33,5 +35,23 @@ final class BundleWiringTest extends IntegrationTestCase
 
         $directories = $repository->allDirectories();
         self::assertSame('@23vbq/top-layer-bundle', $directories[realpath(__DIR__.'/../../assets/src')] ?? null);
+    }
+
+    #[DataProvider('bundleAssets')]
+    public function testBundleAssetIsResolvedByAssetMapper(string $logicalPath): void
+    {
+        $assetMapper = self::getContainer()->get('asset_mapper');
+        self::assertInstanceOf(AssetMapperInterface::class, $assetMapper);
+
+        self::assertNotNull($assetMapper->getAsset($logicalPath));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function bundleAssets(): iterable
+    {
+        yield 'dialog controller' => ['@23vbq/top-layer-bundle/dialog_controller.js'];
+        yield 'stylesheet' => ['@23vbq/top-layer-bundle/styles/top-layer.css'];
     }
 }
