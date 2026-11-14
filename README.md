@@ -19,6 +19,69 @@ Work in progress, not yet released. The API is not stable and may change at any 
 composer require 23vbq/top-layer-bundle
 ```
 
+## Modal and drawer
+
+Both are Twig components rendering a native `<dialog>` with a header and an empty `<turbo-frame>`. Opening the dialog loads a URL into that frame, so the content is a regular Symfony page wrapped in a matching `<turbo-frame>`.
+
+Place the component and the buttons that open it inside an element with the bundle's Stimulus controller:
+
+```twig
+<div data-controller="23vbq--top-layer-bundle--dialog">
+    <button type="button"
+            data-action="23vbq--top-layer-bundle--dialog#open"
+            data-23vbq--top-layer-bundle--dialog-src-param="{{ path('employee_delete', {id: employee.id}) }}">
+        Delete
+    </button>
+
+    <twig:TopLayer:Modal id="modal-employee-action" frame="employee-action" title="Delete employee" />
+</div>
+```
+
+The page behind the URL renders its content inside the frame:
+
+```twig
+<turbo-frame id="employee-action">
+    {# form, confirmation, ... #}
+</turbo-frame>
+```
+
+A drawer works the same way and slides in from the right:
+
+```twig
+<twig:TopLayer:Drawer id="drawer-audit-log" frame="audit-log-entry" title="Audit log entry" />
+```
+
+### Props
+
+| Prop | Component | Required | Description |
+|---|---|---|---|
+| `id` | Modal, Drawer | yes | `id` of the `<dialog>` |
+| `frame` | Modal, Drawer | yes | `id` of the `<turbo-frame>` the content is loaded into |
+| `title` | Modal, Drawer | no | Heading in the header, also used as the dialog's accessible name |
+| `width` | Modal, Drawer | no | Any CSS length, e.g. `600px` or `min(90vw, 1200px)` |
+| `height` | Modal | no | Fixed panel height, e.g. `70vh` |
+| `frameClass` | Modal, Drawer | no | Extra classes on the `<turbo-frame>` |
+
+Any other attribute (`class`, `style`, `data-*`, ...) is added to the `<dialog>` element. Classes are appended to the bundle's own.
+
+### Opening and closing
+
+The `open` action accepts two parameters:
+
+- `src` - URL loaded into the dialog's frame. Opening the same URL again reloads it.
+- `id` - which dialog to open when the controller element contains more than one. Without it, the first dialog is opened.
+
+```twig
+<button type="button"
+        data-action="23vbq--top-layer-bundle--dialog#open"
+        data-23vbq--top-layer-bundle--dialog-id-param="drawer-audit-log"
+        data-23vbq--top-layer-bundle--dialog-src-param="{{ path('audit_log_show', {id: entry.id}) }}">
+    Details
+</button>
+```
+
+The dialog closes with the header's close button, the Escape key, or any element inside it with `data-action="23vbq--top-layer-bundle--dialog#close"`.
+
 ## Styling
 
 The bundle ships a small stylesheet with no dependency on Tailwind or any other CSS framework. Every rule lives in the `top-layer` cascade layer, so your own styles can override it without `!important` or higher specificity.
@@ -72,24 +135,12 @@ The bundle does not include a dark theme, so it never conflicts with how your ap
 
 If your theme already exposes design tokens, map them instead of repeating values: `--top-layer-bg: var(--color-panel);`.
 
-### Per-instance options
+### Per-instance styling
 
-The modal and drawer templates accept options that change a single instance:
-
-| Option | Template | Effect |
-|---|---|---|
-| `width` | modal, drawer | Any CSS length, e.g. `'600px'` or `'min(90vw, 1200px)'` |
-| `height` | modal | Fixed panel height, e.g. `'70vh'` |
-| `frame_class` | modal, drawer | Extra classes on the `<turbo-frame>` that holds the loaded content |
+Use the `width`, `height` and `frameClass` props or plain `class` and `style` attributes to change a single dialog:
 
 ```twig
-{{ include('@TopLayer/modal.html.twig', {
-    id: 'edit-user',
-    turboFrameId: 'edit-user-frame',
-    title: 'Edit user',
-    width: '600px',
-    frame_class: 'my-form-wrapper',
-}) }}
+<twig:TopLayer:Modal id="confirm" frame="confirm-frame" width="420px" class="is-danger" style="--top-layer-radius: 4px" />
 ```
 
 The content inside the frame is not styled by the bundle. Padding, typography and colors there are up to your application.
@@ -124,3 +175,14 @@ Unlayered CSS always wins over the `top-layer` layer. If your own styles are als
 ```
 
 To replace the styles completely, don't load the bundle's stylesheet: disable its `autoimport` entry in `assets/controllers.json` and style the classes above yourself.
+
+### Overriding the markup
+
+To change the markup itself, create a template with the same name in your application. It takes precedence over the bundle's one:
+
+```
+templates/components/TopLayer/Modal.html.twig
+templates/components/TopLayer/Drawer.html.twig
+```
+
+Copy the original from the bundle's `templates/components/` directory as a starting point and keep the `data-23vbq--top-layer-bundle--dialog-target="dialog"` attribute on the `<dialog>`.

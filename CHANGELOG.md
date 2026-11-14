@@ -9,4 +9,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Modal and drawer Twig components based on native `<dialog>`
 - Bundle wiring: @TopLayer Twig namespace, AssetMapper path and Symfony UX package.json
