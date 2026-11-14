@@ -1,0 +1,98 @@
+@layer components {
+    .dialog {
+        opacity: 0;
+        transition:
+            opacity .18s ease,
+            display .18s allow-discrete,
+            overlay .18s allow-discrete;
+    }
+
+    .dialog[open] {
+        opacity: 1;
+    }
+
+    .dialog::backdrop {
+        background: var(--color-backdrop);
+        opacity: 0;
+        transition:
+            opacity .18s ease,
+            display .18s allow-discrete,
+            overlay .18s allow-discrete;
+    }
+
+    .dialog[open]::backdrop {
+        opacity: 1;
+    }
+
+    .dialog-panel {
+        translate: 0 6px;
+        transition: translate .18s ease;
+    }
+
+    .dialog[open] .dialog-panel {
+        translate: 0 0;
+    }
+
+    @starting-style {
+        .dialog[open],
+        .dialog[open]::backdrop {
+            opacity: 0;
+        }
+
+        .dialog[open] .dialog-panel {
+            translate: 0 6px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dialog,
+        .dialog::backdrop,
+        .dialog-panel {
+            transition-duration: .01ms;
+        }
+    }
+}
+
+@layer components {
+    .drawer {
+        translate: 100% 0;
+        transition:
+            translate .22s ease,
+            display .22s allow-discrete,
+            overlay .22s allow-discrete;
+    }
+
+    .drawer[open] {
+        translate: 0 0;
+    }
+
+    .drawer::backdrop {
+        background: var(--color-backdrop-soft);
+        opacity: 0;
+        transition:
+            opacity .22s ease,
+            display .22s allow-discrete,
+            overlay .22s allow-discrete;
+    }
+
+    .drawer[open]::backdrop {
+        opacity: 1;
+    }
+
+    @starting-style {
+        .drawer[open] {
+            translate: 100% 0;
+        }
+
+        .drawer[open]::backdrop {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .drawer,
+        .drawer::backdrop {
+            transition-duration: .01ms;
+        }
+    }
+}
