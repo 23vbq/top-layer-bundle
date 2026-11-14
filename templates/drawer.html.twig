@@ -1,0 +1,11 @@
+{%- set title = title|default(null) -%}
+<dialog id="{{ id }}"
+        data-dialog-target="dialog"
+        {% if title %}aria-labelledby="{{ id }}-title"{% endif %}
+        class="drawer m-0 ml-auto h-full max-h-full w-[380px] max-w-[92vw] border-l border-line bg-panel p-0 shadow-drawer">
+    <div class="flex h-full flex-col">
+        {{ include('layout/_dialog_header.html.twig', {id: id, title: title}, with_context: false) }}
+
+        <turbo-frame id="{{ turboFrameId }}" class="flex min-h-0 flex-1 flex-col"></turbo-frame>
+    </div>
+</dialog>

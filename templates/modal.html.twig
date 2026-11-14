@@ -1,0 +1,13 @@
+{%- set width = width|default('w-[min(94vw,900px)]') -%}
+{%- set height = height|default(null) -%}
+{%- set title = title|default(null) -%}
+<dialog id="{{ id }}"
+        data-dialog-target="dialog"
+        {% if title %}aria-labelledby="{{ id }}-title"{% endif %}
+        class="dialog m-auto {{ width }} overflow-hidden rounded-[10px] border border-line bg-panel p-0 shadow-card">
+    <div class="dialog-panel flex max-h-[86vh] flex-col {{ height }}">
+        {{ include('layout/_dialog_header.html.twig', {id: id, title: title}, with_context: false) }}
+
+        <turbo-frame id="{{ turboFrameId }}" class="flex min-h-0 flex-1 flex-col text-[13px] text-muted"></turbo-frame>
+    </div>
+</dialog>
