@@ -1,0 +1,16 @@
+{% props id, frame, title = null, width = null, height = null, frameClass = null %}
+{%- set style = [
+    width ? '--top-layer-width: ' ~ width : null,
+    attributes.render('style')|default('')|trim(' ;'),
+]|filter(declaration => declaration)|join('; ') -%}
+<dialog id="{{ id }}"
+        data-23vbq--top-layer-bundle--dialog-target="dialog"
+        {% if title %}aria-labelledby="{{ id }}-title"{% endif %}
+        {% if style %}style="{{ style }}"{% endif %}
+        {{ attributes.defaults({class: 'top-layer-modal'}) }}>
+    <div class="top-layer-modal__panel"{% if height %} style="--top-layer-height: {{ height }}"{% endif %}>
+        {{ include('@TopLayer/_dialog_header.html.twig', {id: id, title: title}, with_context: false) }}
+
+        <turbo-frame id="{{ frame }}" class="top-layer-frame{% if frameClass %} {{ frameClass }}{% endif %}"></turbo-frame>
+    </div>
+</dialog>
