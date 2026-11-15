@@ -1,4 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
+import { loadFrame } from './frame.js';
+import './turbo_stream_actions.js';
 
 export default class extends Controller {
     static targets = ['dialog'];
@@ -28,13 +30,7 @@ export default class extends Controller {
             const frame = dialog.querySelector('turbo-frame');
 
             if (frame) {
-                const url = new URL(src, document.baseURI).href;
-
-                if (frame.getAttribute('src') === url) {
-                    frame.reload();
-                } else {
-                    frame.src = url;
-                }
+                loadFrame(frame, src);
             }
         }
 
