@@ -5,8 +5,10 @@ namespace Vbq23\TopLayerBundle\Tests\Integration;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\AssetMapper\AssetMapperRepository;
+use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Vbq23\TopLayerBundle\TopLayerBundle;
+use Vbq23\TopLayerBundle\Twig\TopLayerExtension;
 
 final class BundleWiringTest extends IntegrationTestCase
 {
@@ -26,6 +28,14 @@ final class BundleWiringTest extends IntegrationTestCase
             [realpath(__DIR__.'/../../templates')],
             array_map('realpath', $loader->getPaths('TopLayer')),
         );
+    }
+
+    public function testTwigExtensionIsRegistered(): void
+    {
+        $twig = self::getContainer()->get('twig');
+        self::assertInstanceOf(Environment::class, $twig);
+
+        self::assertTrue($twig->hasExtension(TopLayerExtension::class));
     }
 
     public function testAssetsAreExposedToAssetMapper(): void
@@ -52,6 +62,7 @@ final class BundleWiringTest extends IntegrationTestCase
     public static function bundleAssets(): iterable
     {
         yield 'dialog controller' => ['@23vbq/top-layer-bundle/dialog_controller.js'];
+        yield 'turbo stream actions' => ['@23vbq/top-layer-bundle/turbo_stream_actions.js'];
         yield 'stylesheet' => ['@23vbq/top-layer-bundle/styles/top-layer.css'];
     }
 }
