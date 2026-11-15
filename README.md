@@ -175,7 +175,7 @@ $stream = TopLayerStream::closeDialog('modal-employee-new')
 
 ### Importing the actions manually
 
-If the dialog controller is disabled in `assets/controllers.json`, import the actions yourself, e.g. in `assets/app.js`:
+The actions are registered when the dialog controller's module loads. That happens on page load as long as the controller keeps `"fetch": "eager"`. If you switch it to `"lazy"` or disable it in `assets/controllers.json`, a page without a dialog has no actions and Turbo reports an unknown action. In that case import them yourself, e.g. in `assets/app.js`:
 
 ```js
 // AssetMapper
@@ -186,6 +186,8 @@ import '@23vbq/top-layer-bundle/src/turbo_stream_actions.js';
 ```
 
 Importing them twice is harmless.
+
+The actions require Turbo 8.
 
 ## Styling
 

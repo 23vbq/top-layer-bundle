@@ -58,7 +58,7 @@ final class TopLayerStream
         $html = '<turbo-stream action="'.$action.'"';
 
         foreach ($attributes as $name => $value) {
-            $html .= ' '.$name.'="'.htmlspecialchars($value, \ENT_QUOTES).'"';
+            $html .= ' '.$name.'="'.htmlspecialchars($value, \ENT_QUOTES | \ENT_SUBSTITUTE).'"';
         }
 
         return $html.'></turbo-stream>';

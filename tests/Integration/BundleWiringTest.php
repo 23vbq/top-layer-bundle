@@ -62,6 +62,7 @@ final class BundleWiringTest extends IntegrationTestCase
     public static function bundleAssets(): iterable
     {
         yield 'dialog controller' => ['@23vbq/top-layer-bundle/dialog_controller.js'];
+        yield 'frame helper' => ['@23vbq/top-layer-bundle/frame.js'];
         yield 'turbo stream actions' => ['@23vbq/top-layer-bundle/turbo_stream_actions.js'];
         yield 'stylesheet' => ['@23vbq/top-layer-bundle/styles/top-layer.css'];
     }

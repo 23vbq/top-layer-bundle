@@ -68,6 +68,14 @@ final class TopLayerStreamTest extends TestCase
         );
     }
 
+    public function testInvalidUtf8IsReplacedInsteadOfDroppingTheValue(): void
+    {
+        self::assertSame(
+            "<turbo-stream action=\"refresh_frame\" target=\"list\" url=\"/search?q=\u{FFFD}\"></turbo-stream>",
+            TopLayerStream::refreshFrame('list', "/search?q=\xFF"),
+        );
+    }
+
     public function testTargetIsEscaped(): void
     {
         self::assertSame(

@@ -1,37 +1,83 @@
-import { navigator, StreamActions } from '@hotwired/turbo';
+import { StreamActions, visit } from '@hotwired/turbo';
+import { loadFrame } from './frame.js';
 
 StreamActions.refresh_frame = function () {
-    const frame = document.getElementById(this.target);
+    const frame = findElement(this, isFrame, '<turbo-frame>');
+    const url = readUrl(this);
 
-    if (!frame) {
+    if (!frame || !url) {
         return;
     }
 
-    const url = new URL(this.getAttribute('url'), document.baseURI);
-
-    if (frame.getAttribute('src') === url.href) {
-        frame.reload();
-    } else {
-        frame.src = url.href;
-    }
-
     if ('true' === this.getAttribute('advance') && url.href !== window.location.href) {
-        navigator.history.push(url);
+        // Turbo pushes the history entry only once the frame has loaded
+        visit(url.href, { frame: frame.id, action: 'advance' });
+    } else {
+        loadFrame(frame, url);
     }
 };
 
 StreamActions.visit_parent_frame = function () {
-    const parent = document.getElementById(this.target)?.parentElement?.closest('turbo-frame');
+    const element = findElement(this, () => true, 'element');
+    const url = readUrl(this);
 
-    if (parent) {
-        parent.src = new URL(this.getAttribute('url'), document.baseURI).href;
+    if (!element || !url) {
+        return;
     }
+
+    const parent = element.parentElement?.closest('turbo-frame');
+
+    if (!parent) {
+        warn(this, `#${this.target} is not inside a <turbo-frame>`);
+
+        return;
+    }
+
+    loadFrame(parent, url);
 };
 
 StreamActions.reload_frame = function () {
-    document.getElementById(this.target)?.reload();
+    findElement(this, isFrame, '<turbo-frame>')?.reload();
 };
 
 StreamActions.close_dialog = function () {
-    document.getElementById(this.target)?.close();
+    findElement(this, (element) => element instanceof HTMLDialogElement, '<dialog>')?.close();
 };
+
+function isFrame(element) {
+    return 'turbo-frame' === element.localName;
+}
+
+function findElement(stream, matches, expected) {
+    const element = document.getElementById(stream.target);
+
+    if (!element) {
+        warn(stream, `no element with id "${stream.target}"`);
+
+        return null;
+    }
+
+    if (!matches(element)) {
+        warn(stream, `#${stream.target} is a <${element.localName}>, expected ${expected}`);
+
+        return null;
+    }
+
+    return element;
+}
+
+function readUrl(stream) {
+    const url = stream.getAttribute('url');
+
+    if (!url) {
+        warn(stream, 'missing url attribute');
+
+        return null;
+    }
+
+    return new URL(url, document.baseURI);
+}
+
+function warn(stream, message) {
+    console.warn(`[top-layer] ${stream.action}: ${message}`);
+}

@@ -20,11 +20,11 @@
         },
         "importmap": {
             "@hotwired/stimulus": "^3.0",
-            "@hotwired/turbo": "^7.2 || ^8.0"
+            "@hotwired/turbo": "^8.0"
         }
     },
     "peerDependencies": {
         "@hotwired/stimulus": "^3.0",
-        "@hotwired/turbo": "^7.2 || ^8.0"
+        "@hotwired/turbo": "^8.0"
     }
 }
