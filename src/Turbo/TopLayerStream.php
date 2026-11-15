@@ -39,7 +39,7 @@ final class TopLayerStream
             $attributes['advance'] = 'true';
         }
 
-        return self::stream('refresh_custom_frame', $attributes);
+        return self::stream('refresh_frame', $attributes);
     }
 
     /**

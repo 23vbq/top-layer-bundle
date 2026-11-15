@@ -1,6 +1,6 @@
 import { navigator, StreamActions } from '@hotwired/turbo';
 
-StreamActions.refresh_custom_frame = function () {
+StreamActions.refresh_frame = function () {
     const frame = document.getElementById(this.target);
 
     if (!frame) {
