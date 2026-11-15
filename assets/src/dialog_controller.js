@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import './turbo_stream_actions.js';
 
 export default class extends Controller {
     static targets = ['dialog'];
