@@ -19,6 +19,8 @@ Work in progress, not yet released. The API is not stable and may change at any 
 composer require 23vbq/top-layer-bundle
 ```
 
+The bundle requires Turbo 8 (`@hotwired/turbo` `^8.0`). With AssetMapper, check the version in `importmap.php`.
+
 ## Modal and drawer
 
 Both are Twig components rendering a native `<dialog>` with a header and an empty `<turbo-frame>`. Opening the dialog loads a URL into that frame, so the content is a regular Symfony page wrapped in a matching `<turbo-frame>`.
@@ -186,8 +188,6 @@ import '@23vbq/top-layer-bundle/src/turbo_stream_actions.js';
 ```
 
 Importing them twice is harmless.
-
-The actions require Turbo 8.
 
 ## Styling
 
