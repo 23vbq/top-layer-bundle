@@ -1,16 +1,9 @@
-{#- TODO: role and delay move to the bundle config and Twig functions -#}
-{%- set defaults = {
-    success: {role: 'status', delay: 6000},
-    error: {role: 'alert', delay: 0},
-    warning: {role: 'alert', delay: 0},
-    info: {role: 'status', delay: 6000},
-} -%}
-{%- set type = type in defaults|keys ? type : 'info' -%}
+{%- set type = type in top_layer_toast_types() ? type : 'info' -%}
 {%- set title = flash.title|default(flash) -%}
 {%- set message = flash.message|default(null) -%}
-{%- set delay = defaults[type].delay -%}
+{%- set delay = top_layer_toast_delay(type) -%}
 <div class="top-layer-toast top-layer-toast--{{ type }}"
-     role="{{ defaults[type].role }}"
+     role="{{ top_layer_toast_role(type) }}"
      data-controller="23vbq--top-layer-bundle--toast"
      data-23vbq--top-layer-bundle--toast-delay-value="{{ delay }}"
      data-action="pointerenter->23vbq--top-layer-bundle--toast#pause pointerleave->23vbq--top-layer-bundle--toast#resume">
