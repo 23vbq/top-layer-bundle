@@ -1,0 +1,7 @@
+{%- for type, messages in app.flashes -%}
+    {%- for message in messages -%}
+        <turbo-stream action="append" target="toasts">
+            <template>{{ include('@TopLayer/toast.html.twig', {type: type, flash: message}, with_context: false) }}</template>
+        </turbo-stream>
+    {%- endfor -%}
+{%- endfor -%}
