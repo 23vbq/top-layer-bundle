@@ -189,6 +189,94 @@ import '@23vbq/top-layer-bundle/src/turbo_stream_actions.js';
 
 Importing them twice is harmless.
 
+## Toasts
+
+Toasts are built on Symfony flash messages. A toast is added in PHP, stored in the session and rendered as a Turbo Stream that appends it to a container on the page.
+
+### Setup
+
+Add the container and the flashes to your base layout, the container first:
+
+```twig
+{# base.html.twig #}
+<body>
+    {% block body %}{% endblock %}
+
+    {{ include('@TopLayer/toasts_wrapper.html.twig') }}
+    {{ include('@TopLayer/_flashes.html.twig') }}
+</body>
+```
+
+The container is a fixed element in the bottom right corner. `_flashes.html.twig` turns each pending flash into a `<turbo-stream action="append">`, which Turbo runs as soon as it is in the page, so flashes added before a redirect show up after it.
+
+Responses that don't render the layout, like the Turbo Stream after a form in a modal, include the flashes themselves:
+
+```twig
+{# employee/new_success.stream.html.twig #}
+{{ top_layer_close_dialog('modal-employee-new') }}
+{{ top_layer_refresh_frame('employee-list', path('employee_list')) }}
+{{ include('@TopLayer/_flashes.html.twig') }}
+```
+
+### Adding toasts
+
+Inject the `Toaster` service:
+
+```php
+use Vbq23\TopLayerBundle\Toast\Toaster;
+
+public function new(Request $request, Toaster $toaster): Response
+{
+    // ...
+    $toaster->success('Employee created', 'Jane Doe can now sign in.');
+    $toaster->error('Export failed');
+}
+```
+
+| Method | Type | Role | Closes after |
+|---|---|---|---|
+| `success(title, message = null)` | `success` | `status` | 6 s |
+| `info(title, message = null)` | `info` | `status` | 6 s |
+| `warning(title, message = null)` | `warning` | `alert` | stays open |
+| `error(title, message = null)` | `error` | `alert` | stays open |
+
+`add(new Toast(ToastType::Success, 'Saved'))` does the same with a `Toast` object. Errors and warnings use `role="alert"`, so screen readers announce them right away. The rest use `role="status"` and wait for a pause. Hovering a toast pauses its timer.
+
+A plain flash of one of the four types is shown as a toast too, with the string as its title:
+
+```php
+$this->addFlash('success', 'Saved');
+```
+
+Flashes of any other type, like `notice`, are left alone. They stay in the session for your application to render.
+
+### Configuration
+
+```yaml
+# config/packages/top_layer.yaml
+top_layer:
+    toasts:
+        container_id: toasts      # id of the container toasts are appended to
+        delays:                   # milliseconds, 0 keeps the toast open until dismissed
+            success: 6000
+            info: 6000
+            error: 0
+            warning: 0
+```
+
+Toasts with a delay show a progress bar along the bottom edge. Only the four types above are accepted in `delays`.
+
+### Twig functions
+
+| Function | Returns |
+|---|---|
+| `top_layer_toasts_container_id()` | Configured `container_id` |
+| `top_layer_toast_types()` | `['success', 'error', 'warning', 'info']` |
+| `top_layer_toast_delay(type)` | Configured delay of the type |
+| `top_layer_toast_role(type)` | `alert` or `status` |
+
+A single toast can be rendered with `{{ include('@TopLayer/toast.html.twig', {type: 'success', flash: {title: 'Saved', message: null}}) }}`. The optional `dismissLabel` variable sets the accessible label of the dismiss button, `Dismiss` by default.
+
 ## Styling
 
 The bundle ships a small stylesheet with no dependency on Tailwind or any other CSS framework. Every rule lives in the `top-layer` cascade layer, so your own styles can override it without `!important` or higher specificity.
@@ -222,6 +310,32 @@ The quickest way to adjust the look is to override the custom properties:
 
 Variables can also be scoped to a single dialog, e.g. `#confirm-delete { --top-layer-width: 420px; }`.
 
+Toasts have their own variables. Each type has five colors, `--top-layer-toast-{type}-{part}` with `type` one of `success`, `error`, `warning`, `info`:
+
+| Part | Used for |
+|---|---|
+| `bg` | Background, also the glyph cut out of the icon |
+| `border` | Border |
+| `title` | Title |
+| `text` | Message and dismiss button |
+| `bar` | Icon and progress bar |
+
+| Variable | Default | Used for |
+|---|---|---|
+| `--top-layer-toast-radius` | `9px` | Toast corner radius |
+| `--top-layer-toast-shadow` | `0 4px 14px rgba(24, 32, 38, .08)` | Toast shadow |
+| `--top-layer-toast-glyph` | toast background | Glyph inside the icon |
+| `--top-layer-toasts-width` | `min(92vw, 420px)` | Container width |
+| `--top-layer-toasts-offset` | `20px` | Distance from the bottom right corner |
+| `--top-layer-toasts-gap` | `12px` | Space between toasts |
+
+```css
+:root {
+    --top-layer-toast-info-bg: var(--color-brand-surface);
+    --top-layer-toast-info-bar: var(--color-brand);
+}
+```
+
 ### Dark mode
 
 The bundle does not include a dark theme, so it never conflicts with how your application switches themes. Override the variables wherever your dark theme is defined:
@@ -237,6 +351,14 @@ The bundle does not include a dark theme, so it never conflicts with how your ap
     --top-layer-drawer-shadow: -12px 0 32px rgba(0, 0, 0, .5);
     --top-layer-backdrop: rgb(0 0 0 / .55);
     --top-layer-backdrop-soft: rgb(0 0 0 / .35);
+
+    --top-layer-toast-shadow: 0 4px 14px rgba(0, 0, 0, .4);
+    --top-layer-toast-success-bg: #12301f;
+    --top-layer-toast-success-border: #1f4a30;
+    --top-layer-toast-success-title: #86efac;
+    --top-layer-toast-success-text: #6fcf97;
+    --top-layer-toast-success-bar: #4ade80;
+    /* ... and the same for error, warning and info */
 }
 ```
 
@@ -267,6 +389,14 @@ For changes the variables do not cover, target the bundle's classes directly:
 | `.top-layer-close` | Close button |
 | `.top-layer-close__icon` | Close icon wrapper |
 | `.top-layer-frame` | `<turbo-frame>` with the content |
+| `.top-layer-toasts` | Toast container |
+| `.top-layer-toast` | Toast, with `.top-layer-toast--{type}` |
+| `.top-layer-toast__icon` | Icon wrapper |
+| `.top-layer-toast__body` | Title and message wrapper |
+| `.top-layer-toast__title` | Title |
+| `.top-layer-toast__message` | Message |
+| `.top-layer-toast__dismiss` | Dismiss button |
+| `.top-layer-toast__progress` | Progress bar |
 
 ```css
 .top-layer-header {
@@ -281,7 +411,7 @@ Unlayered CSS always wins over the `top-layer` layer. If your own styles are als
 @layer theme, base, top-layer, components, utilities;
 ```
 
-To replace the styles completely, don't load the bundle's stylesheet: disable its `autoimport` entry in `assets/controllers.json` and style the classes above yourself.
+To replace the styles completely, don't load the bundle's stylesheet: disable its `autoimport` entries for both the `dialog` and `toast` controllers in `assets/controllers.json` and style the classes above yourself.
 
 ### Overriding the markup
 
@@ -293,3 +423,13 @@ templates/components/TopLayer/Drawer.html.twig
 ```
 
 Copy the original from the bundle's `templates/components/` directory as a starting point and keep the `data-23vbq--top-layer-bundle--dialog-target="dialog"` attribute on the `<dialog>`.
+
+The toast templates are overridden through Symfony's usual bundle override directory:
+
+```
+templates/bundles/TopLayerBundle/toast.html.twig
+templates/bundles/TopLayerBundle/toasts_wrapper.html.twig
+templates/bundles/TopLayerBundle/_flashes.html.twig
+```
+
+Keep the `data-controller`, `data-action` and `-target` attributes of the `23vbq--top-layer-bundle--toast` controller in your copy of `toast.html.twig`, and the container's `id` from `top_layer_toasts_container_id()`.
