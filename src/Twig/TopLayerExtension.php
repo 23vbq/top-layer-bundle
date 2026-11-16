@@ -59,10 +59,6 @@ final class TopLayerExtension extends AbstractExtension
 
     private function toastType(string $type): ToastType
     {
-        return ToastType::tryFrom($type) ?? throw new \InvalidArgumentException(\sprintf(
-            'Unknown toast type "%s", expected one of "%s".',
-            $type,
-            implode('", "', $this->toastTypes()),
-        ));
+        return ToastType::tryFrom($type) ?? throw new \InvalidArgumentException(\sprintf('Unknown toast type "%s", expected one of "%s".', $type, implode('", "', $this->toastTypes())));
     }
 }
