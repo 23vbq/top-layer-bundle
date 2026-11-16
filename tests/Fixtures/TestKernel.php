@@ -16,6 +16,11 @@ final class TestKernel extends Kernel
 {
     use MicroKernelTrait;
 
+    /**
+     * Environment with non-default toast configuration.
+     */
+    public const CUSTOM_TOASTS_ENV = 'custom_toasts';
+
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
@@ -55,6 +60,8 @@ final class TestKernel extends Kernel
             'anonymous_template_directory' => 'components/',
             'defaults' => [],
         ]);
-        $container->extension('top_layer', []);
+        $container->extension('top_layer', self::CUSTOM_TOASTS_ENV === $this->environment
+            ? ['toasts' => ['container_id' => 'notifications', 'delays' => ['error' => 8000]]]
+            : []);
     }
 }

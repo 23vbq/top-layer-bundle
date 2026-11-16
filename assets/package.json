@@ -16,6 +16,14 @@
                 "autoimport": {
                     "@23vbq/top-layer-bundle/styles/top-layer.css": true
                 }
+            },
+            "toast": {
+                "main": "src/toast_controller.js",
+                "fetch": "lazy",
+                "enabled": true,
+                "autoimport": {
+                    "@23vbq/top-layer-bundle/styles/top-layer.css": true
+                }
             }
         },
         "importmap": {

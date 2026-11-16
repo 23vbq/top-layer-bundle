@@ -1,0 +1,28 @@
+{#- Flashes of other types belong to the application, not to the bundle -#}
+{%- if type in top_layer_toast_types() -%}
+{%- set title = flash.title|default(flash) -%}
+{%- set message = flash.message|default(null) -%}
+{%- set delay = top_layer_toast_delay(type) -%}
+<div class="top-layer-toast top-layer-toast--{{ type }}"
+     data-turbo-temporary
+     data-controller="23vbq--top-layer-bundle--toast"
+     data-23vbq--top-layer-bundle--toast-delay-value="{{ delay }}"
+     data-action="pointerenter->23vbq--top-layer-bundle--toast#pointerEnter pointerleave->23vbq--top-layer-bundle--toast#pointerLeave focusin->23vbq--top-layer-bundle--toast#focusIn focusout->23vbq--top-layer-bundle--toast#focusOut">
+    <span class="top-layer-toast__icon">{{ source('@TopLayer/svg/toast-' ~ type ~ '.svg') }}</span>
+
+    <div class="top-layer-toast__body">
+        <div class="top-layer-toast__title">{{ title }}</div>
+        {% if message %}
+            <div class="top-layer-toast__message">{{ message }}</div>
+        {% endif %}
+    </div>
+
+    <button type="button" data-action="23vbq--top-layer-bundle--toast#dismiss" aria-label="{{ dismissLabel|default('Dismiss') }}" class="top-layer-toast__dismiss">
+        <span class="top-layer-toast__dismiss-icon">{{ source('@TopLayer/svg/close.svg') }}</span>
+    </button>
+
+    {% if 0 < delay %}
+        <div data-23vbq--top-layer-bundle--toast-target="progress" class="top-layer-toast__progress"></div>
+    {% endif %}
+</div>
+{%- endif -%}
