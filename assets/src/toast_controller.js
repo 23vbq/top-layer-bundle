@@ -5,14 +5,17 @@ export default class extends Controller {
     static values = { delay: { type: Number, default: 6000 } };
 
     #animation = null;
+    #hovered = false;
+    #focused = false;
 
     connect() {
         if (0 >= this.delayValue || !this.hasProgressTarget) {
             return;
         }
 
+        // scaleX instead of width runs on the compositor, without a layout per frame
         this.#animation = this.progressTarget.animate(
-            [{ width: '100%' }, { width: '0%' }],
+            [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }],
             { duration: this.delayValue, easing: 'linear', fill: 'forwards' },
         );
 
@@ -24,12 +27,25 @@ export default class extends Controller {
         this.#animation = null;
     }
 
-    pause() {
-        this.#animation?.pause();
+    pointerEnter() {
+        this.#hovered = true;
+        this.#update();
     }
 
-    resume() {
-        this.#animation?.play();
+    pointerLeave() {
+        this.#hovered = false;
+        this.#update();
+    }
+
+    focusIn() {
+        this.#focused = true;
+        this.#update();
+    }
+
+    focusOut(event) {
+        // Focus moving between elements inside the toast keeps it paused
+        this.#focused = this.element.contains(event.relatedTarget);
+        this.#update();
     }
 
     dismiss() {
@@ -41,5 +57,14 @@ export default class extends Controller {
 
         this.element.addEventListener('transitionend', () => this.element.remove(), { once: true });
         this.element.setAttribute('data-leaving', '');
+    }
+
+    // The timer runs only while the toast is neither hovered nor focused
+    #update() {
+        if (this.#hovered || this.#focused) {
+            this.#animation?.pause();
+        } else {
+            this.#animation?.play();
+        }
     }
 }

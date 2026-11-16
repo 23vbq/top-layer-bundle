@@ -393,6 +393,7 @@
         height: 3px;
         background: var(--_toast-bar);
         opacity: .45;
+        transform-origin: left;
     }
 
     @media (prefers-reduced-motion: reduce) {

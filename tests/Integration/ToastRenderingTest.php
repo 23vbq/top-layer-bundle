@@ -14,21 +14,19 @@ final class ToastRenderingTest extends IntegrationTestCase
 {
     private const PROGRESS = 'data-23vbq--top-layer-bundle--toast-target="progress"';
 
-    public function testErrorToastIsAlertWithoutProgressBar(): void
+    public function testErrorToastHasNoProgressBar(): void
     {
         $html = $this->renderToast('error', ['title' => 'Failed', 'message' => null]);
 
         self::assertStringContainsString('class="top-layer-toast top-layer-toast--error"', $html);
-        self::assertStringContainsString('role="alert"', $html);
         self::assertStringContainsString('data-23vbq--top-layer-bundle--toast-delay-value="0"', $html);
         self::assertStringNotContainsString(self::PROGRESS, $html);
     }
 
-    public function testSuccessToastIsStatusWithProgressBar(): void
+    public function testSuccessToastHasProgressBar(): void
     {
         $html = $this->renderToast('success', ['title' => 'Saved', 'message' => null]);
 
-        self::assertStringContainsString('role="status"', $html);
         self::assertStringContainsString('data-23vbq--top-layer-bundle--toast-delay-value="6000"', $html);
         self::assertStringContainsString(self::PROGRESS, $html);
     }
@@ -41,6 +39,27 @@ final class ToastRenderingTest extends IntegrationTestCase
         self::assertStringContainsString('data-action="23vbq--top-layer-bundle--toast#dismiss"', $html);
         self::assertStringContainsString('aria-label="Dismiss"', $html);
         self::assertStringContainsString('<path d="M8 1.8L15 13.5H1L8 1.8z" fill="currentColor"/>', $html);
+    }
+
+    public function testToastIsAnnouncedByContainerOnly(): void
+    {
+        $html = $this->renderToast('error', 'Failed');
+
+        self::assertStringNotContainsString('role=', $html);
+        self::assertStringNotContainsString('aria-live', $html);
+    }
+
+    public function testToastIsLeftOutOfTurboCache(): void
+    {
+        self::assertStringContainsString('data-turbo-temporary', $this->renderToast('success', 'Saved'));
+    }
+
+    public function testTimerPausesOnHoverAndFocus(): void
+    {
+        self::assertStringContainsString(
+            'data-action="pointerenter->23vbq--top-layer-bundle--toast#pointerEnter pointerleave->23vbq--top-layer-bundle--toast#pointerLeave focusin->23vbq--top-layer-bundle--toast#focusIn focusout->23vbq--top-layer-bundle--toast#focusOut"',
+            $this->renderToast('success', 'Saved'),
+        );
     }
 
     public function testTitleAndMessageAreRendered(): void
@@ -90,6 +109,15 @@ final class ToastRenderingTest extends IntegrationTestCase
         self::assertStringContainsString('Failed', $html);
         self::assertStringNotContainsString('Hello', $html);
         self::assertSame(['notice' => ['Hello']], $session->getFlashBag()->peekAll());
+    }
+
+    public function testFlashesPassDismissLabelToToasts(): void
+    {
+        $this->startSession()->getFlashBag()->add('success', 'Saved');
+
+        $html = $this->twig()->createTemplate("{{ include('@TopLayer/_flashes.html.twig', {dismissLabel: 'Zamknij'}) }}")->render();
+
+        self::assertStringContainsString('aria-label="Zamknij"', $html);
     }
 
     public function testContainerHasDefaultId(): void

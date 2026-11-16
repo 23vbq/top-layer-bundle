@@ -207,7 +207,7 @@ Add the container and the flashes to your base layout, the container first:
 </body>
 ```
 
-The container is a fixed element in the bottom right corner. `_flashes.html.twig` turns each pending flash into a `<turbo-stream action="append">`, which Turbo runs as soon as it is in the page, so flashes added before a redirect show up after it.
+The container is a fixed element in the bottom right corner and an `aria-live="polite"` region, so screen readers announce each toast added to it once they finish what they are reading. `_flashes.html.twig` turns each pending flash into a `<turbo-stream action="append">`, which Turbo runs as soon as it is in the page, so flashes added before a redirect show up after it. Toasts are marked `data-turbo-temporary`, so they don't come back from Turbo's cache when navigating back.
 
 Responses that don't render the layout, like the Turbo Stream after a form in a modal, include the flashes themselves:
 
@@ -233,14 +233,14 @@ public function new(Request $request, Toaster $toaster): Response
 }
 ```
 
-| Method | Type | Role | Closes after |
-|---|---|---|---|
-| `success(title, message = null)` | `success` | `status` | 6 s |
-| `info(title, message = null)` | `info` | `status` | 6 s |
-| `warning(title, message = null)` | `warning` | `alert` | stays open |
-| `error(title, message = null)` | `error` | `alert` | stays open |
+| Method | Type | Closes after |
+|---|---|---|
+| `success(title, message = null)` | `success` | 6 s |
+| `info(title, message = null)` | `info` | 6 s |
+| `warning(title, message = null)` | `warning` | stays open |
+| `error(title, message = null)` | `error` | stays open |
 
-`add(new Toast(ToastType::Success, 'Saved'))` does the same with a `Toast` object. Errors and warnings use `role="alert"`, so screen readers announce them right away. The rest use `role="status"` and wait for a pause. Hovering a toast pauses its timer.
+`add(new Toast(ToastType::Success, 'Saved'))` does the same with a `Toast` object. The timer pauses while the toast is hovered or has keyboard focus.
 
 A plain flash of one of the four types is shown as a toast too, with the string as its title:
 
@@ -273,9 +273,14 @@ Toasts with a delay show a progress bar along the bottom edge. Only the four typ
 | `top_layer_toasts_container_id()` | Configured `container_id` |
 | `top_layer_toast_types()` | `['success', 'error', 'warning', 'info']` |
 | `top_layer_toast_delay(type)` | Configured delay of the type |
-| `top_layer_toast_role(type)` | `alert` or `status` |
 
-A single toast can be rendered with `{{ include('@TopLayer/toast.html.twig', {type: 'success', flash: {title: 'Saved', message: null}}) }}`. The optional `dismissLabel` variable sets the accessible label of the dismiss button, `Dismiss` by default.
+The dismiss button is labelled `Dismiss`. Pass `dismissLabel` to change it, e.g. to translate it:
+
+```twig
+{{ include('@TopLayer/_flashes.html.twig', {dismissLabel: 'Dismiss'|trans}) }}
+```
+
+A single toast can be rendered with `{{ include('@TopLayer/toast.html.twig', {type: 'success', flash: {title: 'Saved', message: null}}) }}`, which accepts `dismissLabel` too. Render it inside the container, the toast itself is not a live region.
 
 ## Styling
 

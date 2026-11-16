@@ -30,7 +30,6 @@ final class TopLayerExtension extends AbstractExtension
             new TwigFunction('top_layer_toasts_container_id', $this->toastsContainerId(...)),
             new TwigFunction('top_layer_toast_types', $this->toastTypes(...)),
             new TwigFunction('top_layer_toast_delay', $this->toastDelay(...)),
-            new TwigFunction('top_layer_toast_role', $this->toastRole(...)),
         ];
     }
 
@@ -50,11 +49,6 @@ final class TopLayerExtension extends AbstractExtension
     public function toastDelay(string $type): int
     {
         return $this->toastDelays[$this->toastType($type)->value] ?? 0;
-    }
-
-    public function toastRole(string $type): string
-    {
-        return $this->toastType($type)->role();
     }
 
     private function toastType(string $type): ToastType

@@ -4,10 +4,10 @@
 {%- set message = flash.message|default(null) -%}
 {%- set delay = top_layer_toast_delay(type) -%}
 <div class="top-layer-toast top-layer-toast--{{ type }}"
-     role="{{ top_layer_toast_role(type) }}"
+     data-turbo-temporary
      data-controller="23vbq--top-layer-bundle--toast"
      data-23vbq--top-layer-bundle--toast-delay-value="{{ delay }}"
-     data-action="pointerenter->23vbq--top-layer-bundle--toast#pause pointerleave->23vbq--top-layer-bundle--toast#resume">
+     data-action="pointerenter->23vbq--top-layer-bundle--toast#pointerEnter pointerleave->23vbq--top-layer-bundle--toast#pointerLeave focusin->23vbq--top-layer-bundle--toast#focusIn focusout->23vbq--top-layer-bundle--toast#focusOut">
     <span class="top-layer-toast__icon">{{ source('@TopLayer/svg/toast-' ~ type ~ '.svg') }}</span>
 
     <div class="top-layer-toast__body">
