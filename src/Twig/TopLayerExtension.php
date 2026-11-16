@@ -44,21 +44,25 @@ final class TopLayerExtension extends AbstractExtension
      */
     public function toastTypes(): array
     {
-        return array_map(static fn (ToastType $type): string => $type->value, ToastType::cases());
+        return array_column(ToastType::cases(), 'value');
     }
 
     public function toastDelay(string $type): int
     {
-        return $this->toastDelays[self::toastType($type)->value] ?? 0;
+        return $this->toastDelays[$this->toastType($type)->value] ?? 0;
     }
 
     public function toastRole(string $type): string
     {
-        return self::toastType($type)->role();
+        return $this->toastType($type)->role();
     }
 
-    private static function toastType(string $type): ToastType
+    private function toastType(string $type): ToastType
     {
-        return ToastType::tryFrom($type) ?? ToastType::Info;
+        return ToastType::tryFrom($type) ?? throw new \InvalidArgumentException(\sprintf(
+            'Unknown toast type "%s", expected one of "%s".',
+            $type,
+            implode('", "', $this->toastTypes()),
+        ));
     }
 }
