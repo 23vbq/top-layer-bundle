@@ -55,8 +55,15 @@ export default class extends Controller {
             this.#animation = null;
         }
 
-        this.element.addEventListener('transitionend', () => this.element.remove(), { once: true });
         this.element.setAttribute('data-leaving', '');
+
+        // Waits only for the toast's own leave transitions: none (transition: none, no bundle CSS,
+        // display: none) removes it right away, transitions of its children are not included
+        // and other CSS animations, which may never end, are ignored.
+        const remove = () => this.element.remove();
+        const transitions = this.element.getAnimations().filter((animation) => animation instanceof CSSTransition);
+
+        Promise.all(transitions.map((transition) => transition.finished)).then(remove, remove);
     }
 
     // The timer runs only while the toast is neither hovered nor focused
