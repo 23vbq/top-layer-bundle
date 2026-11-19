@@ -250,11 +250,11 @@
     /* Toasts */
 
     /*
-     * The top-layer controller turns the container into a popover="manual", so the
-     * rules below also reset the browser's [popover] styles (centered with inset: 0
+     * The container is a popover="manual" kept in the top layer by the top-layer
+     * controller, so the rules below also reset the browser's [popover] styles (centered with inset: 0
      * and margin: auto, border, padding, Canvas background, CanvasText color, scroll).
      * display: flex beats the browser's display: none of a hidden popover on purpose,
-     * the toasts stay visible before the controller connects or without JavaScript.
+     * the toasts stay visible before the controller shows it or without JavaScript.
      */
     .top-layer-toasts {
         position: fixed;
@@ -276,6 +276,8 @@
         pointer-events: none;
     }
 
+    /* .top-layer-toast does this too, this covers children without that class,
+       like a toast.html.twig overridden with markup of your own */
     .top-layer-toasts > * {
         pointer-events: auto;
     }

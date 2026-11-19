@@ -288,13 +288,18 @@ A modal opened with `showModal()` sits in the browser's top layer and makes the 
 
 The container carries the `23vbq--top-layer-bundle--top-layer` controller, which keeps it above every modal:
 
-1. On connect it turns the container into a `popover="manual"` and shows it, so the container itself is in the top layer.
-2. Whenever an `open` attribute changes anywhere on the page (a dialog opens or closes) or a toast is added, it moves the container into the topmost open modal, or back to `<body>` when there is none.
+1. The container is rendered as a `popover="manual"`, which the controller shows on connect, so the container itself is in the top layer.
+2. Whenever a dialog opens or closes, or a toast is added, it moves the container into the topmost open modal, or back to `<body>` when there is none.
 3. It then hides and shows the popover again. The element shown last is on top of the top layer, so the container ends up above the modal opened last, and being inside that modal it is no longer inert.
 
-Nothing needs to be configured, the controller comes with the container template and is loaded eagerly. A toast keeps its remaining time and pause state when the container moves. If you override `toasts_wrapper.html.twig`, keep its `data-controller` attribute.
+Nothing needs to be configured, the controller comes with the container template and is loaded eagerly. If you override `toasts_wrapper.html.twig`, keep its `popover` and `data-controller` attributes.
 
-The topmost modal is found with `document.elementFromPoint(0, 0)`. A modal's backdrop covers the whole viewport, so the top left corner belongs to the modal opened last. Another top layer element covering that corner, like a popover of your own, hides the modal from the controller and the container stays in `<body>`.
+Some details:
+
+- **Stacked modals.** The topmost modal is found with `document.elementsFromPoint(0, 0)`, the first element there belonging to a `dialog:modal`. A modal's backdrop covers the whole viewport, so a modal is found even below other top layer elements. A dialog fading out after closing is skipped, so the container moves straight to the modal below it. A backdrop with `pointer-events: none` hides its modal from the controller.
+- **Removed dialogs.** If the dialog holding the container is removed from the page, by a `<turbo-stream action="remove">`, a reloaded frame or a morph, the container is put back into `<body>` together with its toasts.
+- **Morphing.** The `popover` attribute is part of the template, so a page refresh with `turbo-refresh-method` set to `morph` keeps it. If it is removed anyway, the controller restores it.
+- **Toast state.** A toast keeps its remaining time and pause state when the container moves. Browsers with `Element.moveBefore()` also keep its transitions and the keyboard focus. In the others a moved toast replays its enter animation and loses focus.
 
 ## Styling
 

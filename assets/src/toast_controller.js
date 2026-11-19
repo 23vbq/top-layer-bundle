@@ -1,7 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
 
-const TIMER = 'top-layer-toast-timer';
-
 export default class extends Controller {
     static targets = ['progress'];
     static values = { delay: { type: Number, default: 6000 } };
@@ -16,14 +14,13 @@ export default class extends Controller {
         }
 
         // The top-layer controller moves the container into the topmost modal and back.
-        // Stimulus sees a move as removal and insertion, so the toast is disconnected and
-        // connected again. Picking up the running timer keeps its remaining time and pause.
-        this.#animation = this.progressTarget.getAnimations().find((animation) => animation.id === TIMER)
-            // scaleX instead of width runs on the compositor, without a layout per frame
-            ?? this.progressTarget.animate(
-                [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }],
-                { id: TIMER, duration: this.delayValue, easing: 'linear', fill: 'forwards' },
-            );
+        // Stimulus sees a move as removal and insertion and calls disconnect() and connect()
+        // on the same instance, so the running timer is kept with its remaining time and pause.
+        // scaleX instead of width runs on the compositor, without a layout per frame
+        this.#animation ??= this.progressTarget.animate(
+            [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }],
+            { duration: this.delayValue, easing: 'linear', fill: 'forwards' },
+        );
 
         this.#animation.onfinish = () => this.dismiss();
     }

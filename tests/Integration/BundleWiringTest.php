@@ -59,7 +59,6 @@ final class BundleWiringTest extends IntegrationTestCase
         self::assertSame('src/top_layer_controller.js', $controller['main'] ?? null);
         self::assertSame('eager', $controller['fetch'] ?? null);
         self::assertTrue($controller['enabled'] ?? null);
-        self::assertFileExists(__DIR__.'/../../assets/src/top_layer_controller.js');
     }
 
     #[DataProvider('bundleAssets')]
