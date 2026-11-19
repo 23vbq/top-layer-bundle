@@ -24,6 +24,14 @@
                 "autoimport": {
                     "@23vbq/top-layer-bundle/styles/top-layer.css": true
                 }
+            },
+            "top-layer": {
+                "main": "src/top_layer_controller.js",
+                "fetch": "eager",
+                "enabled": true,
+                "autoimport": {
+                    "@23vbq/top-layer-bundle/styles/top-layer.css": true
+                }
             }
         },
         "importmap": {

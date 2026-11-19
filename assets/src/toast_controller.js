@@ -9,12 +9,15 @@ export default class extends Controller {
     #focused = false;
 
     connect() {
-        if (0 >= this.delayValue || !this.hasProgressTarget) {
+        if (0 >= this.delayValue || !this.hasProgressTarget || this.element.hasAttribute('data-leaving')) {
             return;
         }
 
+        // The top-layer controller moves the container into the topmost modal and back.
+        // Stimulus sees a move as removal and insertion and calls disconnect() and connect()
+        // on the same instance, so the running timer is kept with its remaining time and pause.
         // scaleX instead of width runs on the compositor, without a layout per frame
-        this.#animation = this.progressTarget.animate(
+        this.#animation ??= this.progressTarget.animate(
             [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }],
             { duration: this.delayValue, easing: 'linear', fill: 'forwards' },
         );
@@ -23,6 +26,11 @@ export default class extends Controller {
     }
 
     disconnect() {
+        // Still in the document: moved, not removed, connect() follows right after
+        if (this.element.isConnected) {
+            return;
+        }
+
         this.#animation?.cancel();
         this.#animation = null;
     }

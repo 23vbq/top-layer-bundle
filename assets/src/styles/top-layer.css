@@ -249,20 +249,37 @@
 
     /* Toasts */
 
+    /*
+     * The container is a popover="manual" kept in the top layer by the top-layer
+     * controller, so the rules below also reset the browser's [popover] styles (centered with inset: 0
+     * and margin: auto, border, padding, Canvas background, CanvasText color, scroll).
+     * display: flex beats the browser's display: none of a hidden popover on purpose,
+     * the toasts stay visible before the controller shows it or without JavaScript.
+     */
     .top-layer-toasts {
         position: fixed;
         inset: auto var(--top-layer-toasts-offset) var(--top-layer-toasts-offset) auto;
+        /* Only without JavaScript, the top layer ignores z-index */
         z-index: 50;
         display: flex;
         flex-direction: column-reverse;
         gap: var(--top-layer-toasts-gap);
         width: var(--top-layer-toasts-width);
+        height: auto;
         margin: 0;
         padding: 0;
         overflow: visible;
         border: 0;
         background: transparent;
+        color: inherit;
+        /* Clicks pass through the empty area to the page or the modal below */
         pointer-events: none;
+    }
+
+    /* .top-layer-toast does this too, this covers children without that class,
+       like a toast.html.twig overridden with markup of your own */
+    .top-layer-toasts > * {
+        pointer-events: auto;
     }
 
     .top-layer-toast {

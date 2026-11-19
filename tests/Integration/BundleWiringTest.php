@@ -47,6 +47,20 @@ final class BundleWiringTest extends IntegrationTestCase
         self::assertSame('@23vbq/top-layer-bundle', $directories[realpath(__DIR__.'/../../assets/src')] ?? null);
     }
 
+    public function testTopLayerControllerIsLoadedEagerly(): void
+    {
+        $package = json_decode((string) file_get_contents(__DIR__.'/../../assets/package.json'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($package);
+        self::assertIsArray($package['symfony'] ?? null);
+        self::assertIsArray($package['symfony']['controllers'] ?? null);
+
+        $controller = $package['symfony']['controllers']['top-layer'] ?? null;
+        self::assertIsArray($controller);
+        self::assertSame('src/top_layer_controller.js', $controller['main'] ?? null);
+        self::assertSame('eager', $controller['fetch'] ?? null);
+        self::assertTrue($controller['enabled'] ?? null);
+    }
+
     #[DataProvider('bundleAssets')]
     public function testBundleAssetIsResolvedByAssetMapper(string $logicalPath): void
     {
@@ -62,6 +76,7 @@ final class BundleWiringTest extends IntegrationTestCase
     public static function bundleAssets(): iterable
     {
         yield 'dialog controller' => ['@23vbq/top-layer-bundle/dialog_controller.js'];
+        yield 'top layer controller' => ['@23vbq/top-layer-bundle/top_layer_controller.js'];
         yield 'frame helper' => ['@23vbq/top-layer-bundle/frame.js'];
         yield 'turbo stream actions' => ['@23vbq/top-layer-bundle/turbo_stream_actions.js'];
         yield 'stylesheet' => ['@23vbq/top-layer-bundle/styles/top-layer.css'];
