@@ -282,6 +282,20 @@ The dismiss button is labelled `Dismiss`. Pass `dismissLabel` to change it, e.g.
 
 A single toast can be rendered with `{{ include('@TopLayer/toast.html.twig', {type: 'success', flash: {title: 'Saved', message: null}}) }}`, which accepts `dismissLabel` too. Render it inside the container, the toast itself is not a live region.
 
+### Toasts above modals
+
+A modal opened with `showModal()` sits in the browser's top layer and makes the rest of the page inert. A toast container placed in `<body>` stays below the modal's backdrop no matter its `z-index`, and it is inert along with the rest of the page: the toast is visible but it can't be clicked, dismissed or reached with Tab. That is exactly the case of a form submitted in a modal that answers with an error toast.
+
+The container carries the `23vbq--top-layer-bundle--top-layer` controller, which keeps it above every modal:
+
+1. On connect it turns the container into a `popover="manual"` and shows it, so the container itself is in the top layer.
+2. Whenever an `open` attribute changes anywhere on the page (a dialog opens or closes) or a toast is added, it moves the container into the topmost open modal, or back to `<body>` when there is none.
+3. It then hides and shows the popover again. The element shown last is on top of the top layer, so the container ends up above the modal opened last, and being inside that modal it is no longer inert.
+
+Nothing needs to be configured, the controller comes with the container template and is loaded eagerly. A toast keeps its remaining time and pause state when the container moves. If you override `toasts_wrapper.html.twig`, keep its `data-controller` attribute.
+
+The topmost modal is found with `document.elementFromPoint(0, 0)`. A modal's backdrop covers the whole viewport, so the top left corner belongs to the modal opened last. Another top layer element covering that corner, like a popover of your own, hides the modal from the controller and the container stays in `<body>`.
+
 ## Styling
 
 The bundle ships a small stylesheet with no dependency on Tailwind or any other CSS framework. Every rule lives in the `top-layer` cascade layer, so your own styles can override it without `!important` or higher specificity.
@@ -416,7 +430,7 @@ Unlayered CSS always wins over the `top-layer` layer. If your own styles are als
 @layer theme, base, top-layer, components, utilities;
 ```
 
-To replace the styles completely, don't load the bundle's stylesheet: disable its `autoimport` entries for both the `dialog` and `toast` controllers in `assets/controllers.json` and style the classes above yourself.
+To replace the styles completely, don't load the bundle's stylesheet: disable its `autoimport` entries for the `dialog`, `toast` and `top-layer` controllers in `assets/controllers.json` and style the classes above yourself.
 
 ### Overriding the markup
 
@@ -437,4 +451,4 @@ templates/bundles/TopLayerBundle/toasts_wrapper.html.twig
 templates/bundles/TopLayerBundle/_flashes.html.twig
 ```
 
-Keep the `data-controller`, `data-action` and `-target` attributes of the `23vbq--top-layer-bundle--toast` controller in your copy of `toast.html.twig`, and the container's `id` from `top_layer_toasts_container_id()`.
+Keep the `data-controller`, `data-action` and `-target` attributes of the `23vbq--top-layer-bundle--toast` controller in your copy of `toast.html.twig`, and the container's `id` from `top_layer_toasts_container_id()` and its `data-controller="23vbq--top-layer-bundle--top-layer"` (see [Toasts above modals](#toasts-above-modals)).
