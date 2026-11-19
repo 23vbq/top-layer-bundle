@@ -27,9 +27,16 @@ export default class extends Controller {
         this.#observer = null;
 
         // Removed together with the dialog it was moved into (turbo-stream remove or replace,
-        // a reloaded frame, a morph). Put it back so later toasts still find their target.
-        // A Turbo Drive visit swaps the whole body, the new page brings its own container.
-        if (!this.element.isConnected && document.body === this.#body && !document.getElementById(this.element.id)) {
+        // a reloaded frame, a morph): the container is still the dialog's child, only in a
+        // detached subtree. Put it back so later toasts still find their target. A container
+        // removed on its own has no parent and is left out. A Turbo Drive visit swaps the
+        // whole body, the new page brings its own container.
+        if (
+            !this.element.isConnected
+            && this.element.parentElement instanceof HTMLDialogElement
+            && document.body === this.#body
+            && !document.getElementById(this.element.id)
+        ) {
             this.#body.append(this.element);
         }
     }
