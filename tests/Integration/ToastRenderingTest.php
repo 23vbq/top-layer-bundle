@@ -123,8 +123,16 @@ final class ToastRenderingTest extends IntegrationTestCase
     public function testContainerHasDefaultId(): void
     {
         self::assertSame(
-            '<div id="toasts" class="top-layer-toasts" aria-live="polite" aria-atomic="false"></div>',
+            '<div id="toasts" class="top-layer-toasts" data-controller="23vbq--top-layer-bundle--top-layer" aria-live="polite" aria-atomic="false"></div>',
             trim($this->twig()->render('@TopLayer/toasts_wrapper.html.twig')),
+        );
+    }
+
+    public function testContainerIsKeptAboveModals(): void
+    {
+        self::assertStringContainsString(
+            'data-controller="23vbq--top-layer-bundle--top-layer"',
+            $this->twig()->render('@TopLayer/toasts_wrapper.html.twig'),
         );
     }
 
