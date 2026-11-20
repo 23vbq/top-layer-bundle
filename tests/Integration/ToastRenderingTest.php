@@ -128,6 +128,54 @@ final class ToastRenderingTest extends IntegrationTestCase
         );
     }
 
+    public function testContainerIsFollowedByFlashes(): void
+    {
+        $this->startSession()->getFlashBag()->add('success', 'Saved');
+
+        $html = $this->twig()->render('@TopLayer/toasts_wrapper.html.twig');
+
+        self::assertMatchesRegularExpression('~^<div id="toasts"[^>]*></div>\s*<turbo-stream action="append" target="toasts">~', $html);
+        self::assertSame(1, substr_count($html, '<turbo-stream'));
+    }
+
+    public function testContainerPassesDismissLabelToFlashes(): void
+    {
+        $this->startSession()->getFlashBag()->add('success', 'Saved');
+
+        $html = $this->twig()->render('@TopLayer/toasts_wrapper.html.twig', ['dismissLabel' => 'Zamknij']);
+
+        self::assertStringContainsString('aria-label="Zamknij"', $html);
+    }
+
+    public function testContainerLeavesFlashesOfTurboFrameRequestToListener(): void
+    {
+        $session = $this->startSession(['HTTP_TURBO_FRAME' => 'demo']);
+        $session->getFlashBag()->add('success', 'Saved');
+
+        $html = $this->twig()->render('@TopLayer/toasts_wrapper.html.twig');
+
+        self::assertStringNotContainsString('<turbo-stream', $html);
+        self::assertSame(['success' => ['Saved']], $session->getFlashBag()->peekAll());
+    }
+
+    public function testContainerRendersFlashesOfTurboFrameRequestWhenInjectionIsDisabled(): void
+    {
+        self::bootKernel(['environment' => TestKernel::NO_TURBO_INJECTION_ENV]);
+
+        $this->startSession(['HTTP_TURBO_FRAME' => 'demo'])->getFlashBag()->add('success', 'Saved');
+
+        self::assertSame(1, substr_count($this->twig()->render('@TopLayer/toasts_wrapper.html.twig'), '<turbo-stream'));
+    }
+
+    public function testInjectionFlagIsPassedToTemplates(): void
+    {
+        self::assertSame('1', $this->twig()->createTemplate('{{ top_layer_inject_into_turbo_responses() }}')->render());
+
+        self::bootKernel(['environment' => TestKernel::NO_TURBO_INJECTION_ENV]);
+
+        self::assertSame('', $this->twig()->createTemplate('{{ top_layer_inject_into_turbo_responses() }}')->render());
+    }
+
     public function testConfigurationIsPassedToTemplates(): void
     {
         self::bootKernel(['environment' => TestKernel::CUSTOM_TOASTS_ENV]);
@@ -135,9 +183,8 @@ final class ToastRenderingTest extends IntegrationTestCase
         $session = $this->startSession();
         $session->getFlashBag()->add('error', 'Failed');
 
-        self::assertStringContainsString('id="notifications"', $this->twig()->render('@TopLayer/toasts_wrapper.html.twig'));
-
-        $html = $this->twig()->render('@TopLayer/_flashes.html.twig');
+        $html = $this->twig()->render('@TopLayer/toasts_wrapper.html.twig');
+        self::assertStringContainsString('<div id="notifications"', $html);
         self::assertStringContainsString('<turbo-stream action="append" target="notifications">', $html);
         self::assertStringContainsString('data-23vbq--top-layer-bundle--toast-delay-value="8000"', $html);
         self::assertStringContainsString(self::PROGRESS, $html);
@@ -151,11 +198,14 @@ final class ToastRenderingTest extends IntegrationTestCase
         return $this->twig()->render('@TopLayer/toast.html.twig', ['type' => $type, 'flash' => $flash]);
     }
 
-    private function startSession(): Session
+    /**
+     * @param array<string, string> $server
+     */
+    private function startSession(array $server = []): Session
     {
         $session = new Session(new MockArraySessionStorage());
 
-        $request = new Request();
+        $request = new Request(server: $server);
         $request->setSession($session);
 
         $requestStack = self::getContainer()->get('request_stack');

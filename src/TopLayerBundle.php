@@ -7,7 +7,11 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Vbq23\TopLayerBundle\EventListener\TurboFlashListener;
 use Vbq23\TopLayerBundle\Toast\ToastType;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 final class TopLayerBundle extends AbstractBundle
 {
@@ -38,6 +42,10 @@ final class TopLayerBundle extends AbstractBundle
                                 ->integerNode(ToastType::Warning->value)->min(0)->defaultValue(0)->end()
                             ->end()
                         ->end()
+                        ->booleanNode('inject_into_turbo_responses')
+                            ->info('Render pending flashes into Turbo Stream and Turbo Frame responses, which don\'t render the layout.')
+                            ->defaultTrue()
+                        ->end()
                     ->end()
                 ->end()
             ->end();
@@ -50,12 +58,22 @@ final class TopLayerBundle extends AbstractBundle
     {
         $container->import('../config/services.php');
 
-        /** @var array{container_id: string, delays: array<string, int>} $toasts */
+        /** @var array{container_id: string, delays: array<string, int>, inject_into_turbo_responses: bool} $toasts */
         $toasts = $config['toasts'];
 
-        $container->services()
-            ->get('top_layer.twig_extension')
-            ->args([$toasts['container_id'], $toasts['delays']]);
+        $services = $container->services();
+
+        $services->get('top_layer.twig_extension')
+            ->args([$toasts['container_id'], $toasts['delays'], $toasts['inject_into_turbo_responses']]);
+
+        if ($toasts['inject_into_turbo_responses']) {
+            // After ResponseListener (0), which sets the Turbo Stream Content-Type,
+            // and before SessionListener (-1000), which saves the consumed flashes.
+            $services->set('top_layer.turbo_flash_listener', TurboFlashListener::class)
+                ->private()
+                ->args([service('twig')])
+                ->tag('kernel.event_listener', ['event' => KernelEvents::RESPONSE, 'priority' => -10]);
+        }
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
