@@ -89,6 +89,7 @@ final class TestKernel extends Kernel
         $routes->add('page', '/page')->controller([FlashController::class, 'page']);
         $routes->add('redirect', '/redirect')->controller([FlashController::class, 'redirect']);
         $routes->add('frame_with_flashes', '/frame-with-flashes')->controller([FlashController::class, 'frameWithFlashes']);
+        $routes->add('page_in_layout', '/page-in-layout')->controller([FlashController::class, 'pageInLayout']);
         $routes->add('frame_without_toast', '/frame-without-toast')->controller([FlashController::class, 'frameWithoutToast']);
     }
 }

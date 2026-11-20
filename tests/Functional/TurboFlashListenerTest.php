@@ -68,6 +68,30 @@ final class TurboFlashListenerTest extends IntegrationTestCase
         self::assertSame(1, substr_count($content, self::TOAST_STREAM));
     }
 
+    public function testFullPageVisitGetsToastFromContainer(): void
+    {
+        $content = $this->request($this->createClient(), '/page-in-layout');
+
+        self::assertSame(1, substr_count($content, self::TOAST_STREAM));
+        self::assertMatchesRegularExpression('~</turbo-frame><div id="toasts"[^>]*></div>\s*'.preg_quote(self::TOAST_STREAM, '~').'~', $content);
+    }
+
+    public function testFrameRequestForFullPageGetsToastInsideFrame(): void
+    {
+        $content = $this->request($this->createClient(), '/page-in-layout', self::FRAME_HEADER);
+
+        self::assertSame(1, substr_count($content, self::TOAST_STREAM));
+        self::assertStringContainsString('<turbo-frame id="demo">'.self::TOAST_STREAM, $content);
+    }
+
+    public function testFrameRequestForFullPageGetsToastFromContainerWhenDisabled(): void
+    {
+        $content = $this->request($this->createClient(TestKernel::NO_TURBO_INJECTION_ENV), '/page-in-layout', self::FRAME_HEADER);
+
+        self::assertSame(1, substr_count($content, self::TOAST_STREAM));
+        self::assertStringContainsString('<turbo-frame id="demo"><p>Frame content</p></turbo-frame>', $content);
+    }
+
     public function testRequestWithoutSessionCookieDoesNotStartSession(): void
     {
         $client = $this->createClient();
@@ -90,9 +114,9 @@ final class TurboFlashListenerTest extends IntegrationTestCase
         self::assertFalse(self::getContainer()->has(self::LISTENER));
     }
 
-    private function createClient(): KernelBrowser
+    private function createClient(string $environment = 'test'): KernelBrowser
     {
-        self::bootKernel();
+        self::bootKernel(['environment' => $environment]);
 
         $client = self::getContainer()->get('test.client');
         self::assertInstanceOf(KernelBrowser::class, $client);

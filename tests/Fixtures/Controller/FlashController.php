@@ -71,6 +71,16 @@ final class FlashController
     }
 
     /**
+     * A full page rendered in a layout with the toasts container, as a frame request usually gets it.
+     */
+    public function pageInLayout(Request $request): Response
+    {
+        $this->addToast($request);
+
+        return new Response($this->twig->render('page_with_frame.html.twig'));
+    }
+
+    /**
      * Adds no toast, for checking that a toast is shown once.
      */
     public function frameWithoutToast(): Response
