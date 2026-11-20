@@ -209,7 +209,16 @@ Add the container and the flashes to your base layout, the container first:
 
 The container is a fixed element in the bottom right corner and an `aria-live="polite"` region, so screen readers announce each toast added to it once they finish what they are reading. `_flashes.html.twig` turns each pending flash into a `<turbo-stream action="append">`, which Turbo runs as soon as it is in the page, so flashes added before a redirect show up after it. Toasts are marked `data-turbo-temporary`, so they don't come back from Turbo's cache when navigating back.
 
-Responses that don't render the layout, like the Turbo Stream after a form in a modal, include the flashes themselves:
+### Turbo Stream and Turbo Frame responses
+
+Some responses don't render the layout, like the Turbo Stream after a form in a modal or a page loaded into a Turbo Frame. The bundle adds the pending flashes to them on its own, so `$toaster->success()` before such a response is all it takes:
+
+- **Turbo Stream responses** (`Content-Type: text/vnd.turbo-stream.html`): the toast streams are appended after the response's own streams.
+- **Turbo Frame requests** (`Turbo-Frame: <id>` header): the toast streams are inserted right after the opening `<turbo-frame id="<id>">`. Turbo keeps only that frame from the response, so streams anywhere else would be dropped. A response without that frame is left alone.
+
+Nothing is added to redirects, streamed and file responses, sub-requests and requests without a session. The flashes stay in the session until a response renders them. A regular Turbo Drive visit renders the layout, which includes `_flashes.html.twig` as shown above.
+
+The flashes are rendered with `_flashes.html.twig`, which consumes them. A template that still includes the flashes itself keeps working and shows each toast once, since nothing is left to add after it:
 
 ```twig
 {# employee/new_success.stream.html.twig #}
@@ -217,6 +226,8 @@ Responses that don't render the layout, like the Turbo Stream after a form in a 
 {{ top_layer_refresh_frame('employee-list', path('employee_list')) }}
 {{ include('@TopLayer/_flashes.html.twig') }}
 ```
+
+Include them yourself to pass `dismissLabel`, or to place the toasts at another spot of the response. Set `inject_into_turbo_responses: false` to turn the injection off.
 
 ### Adding toasts
 
@@ -262,6 +273,7 @@ top_layer:
             info: 6000
             error: 0
             warning: 0
+        inject_into_turbo_responses: true  # add pending flashes to Turbo Stream and Turbo Frame responses
 ```
 
 Toasts with a delay show a progress bar along the bottom edge. Only the four types above are accepted in `delays`.
