@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-21
+
 ### Added
 
 - Toasts built on Symfony flash messages: `Toaster` service, container and flashes templates rendered as Turbo Streams, `top_layer_toast*` Twig functions and `top_layer.toasts` configuration
@@ -23,5 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Turbo Stream actions `close_dialog`, `reload_frame`, `refresh_frame` and `visit_parent_frame`, with the `TopLayerStream` PHP helper and `top_layer_*` Twig functions
 - Requires Turbo 8 (`@hotwired/turbo` `^8.0`, `symfony/ux-turbo` `^2.15`)
 
-[Unreleased]: https://github.com/23vbq/top-layer-bundle/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/23vbq/top-layer-bundle/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/23vbq/top-layer-bundle/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/23vbq/top-layer-bundle/releases/tag/v0.1.0
