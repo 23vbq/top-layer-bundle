@@ -18,6 +18,14 @@ final class TopLayerBundleConfigurationTest extends TestCase
 
         self::assertSame('toasts', $config['toasts']['container_id']);
         self::assertSame(['error' => 0, 'info' => 6000, 'success' => 6000, 'warning' => 0], $config['toasts']['delays']);
+        self::assertTrue($config['toasts']['inject_into_turbo_responses']);
+    }
+
+    public function testInjectionIntoTurboResponsesCanBeDisabled(): void
+    {
+        $config = $this->process(['toasts' => ['inject_into_turbo_responses' => false]]);
+
+        self::assertFalse($config['toasts']['inject_into_turbo_responses']);
     }
 
     public function testOverridingOneDelayKeepsOtherDefaults(): void
@@ -54,12 +62,13 @@ final class TopLayerBundleConfigurationTest extends TestCase
         yield 'negative delay' => [['delays' => ['success' => -1]]];
         yield 'non-integer delay' => [['delays' => ['success' => '6s']]];
         yield 'empty container id' => [['container_id' => '']];
+        yield 'non-boolean injection flag' => [['inject_into_turbo_responses' => 'yes']];
     }
 
     /**
      * @param array<string, mixed> $config
      *
-     * @return array{toasts: array{container_id: string, delays: array<string, int>}}
+     * @return array{toasts: array{container_id: string, delays: array<string, int>, inject_into_turbo_responses: bool}}
      */
     private function process(array $config): array
     {
@@ -69,7 +78,7 @@ final class TopLayerBundleConfigurationTest extends TestCase
         $configuration = $extension->getConfiguration([], new ContainerBuilder());
         self::assertNotNull($configuration);
 
-        /** @var array{toasts: array{container_id: string, delays: array<string, int>}} $processed */
+        /** @var array{toasts: array{container_id: string, delays: array<string, int>, inject_into_turbo_responses: bool}} $processed */
         $processed = (new Processor())->processConfiguration($configuration, [$config]);
         ksort($processed['toasts']['delays']);
 
