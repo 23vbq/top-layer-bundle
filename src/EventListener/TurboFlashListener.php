@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\UX\Turbo\TurboBundle;
 use Twig\Environment;
 
 /**
@@ -16,7 +17,6 @@ use Twig\Environment;
  */
 final class TurboFlashListener
 {
-    private const STREAM_CONTENT_TYPE = 'text/vnd.turbo-stream.html';
     private const HTML_CONTENT_TYPE = 'text/html';
 
     public function __construct(
@@ -72,7 +72,7 @@ final class TurboFlashListener
 
     private function isTurboStream(Response $response): bool
     {
-        return str_starts_with((string) $response->headers->get('Content-Type'), self::STREAM_CONTENT_TYPE);
+        return str_starts_with((string) $response->headers->get('Content-Type'), TurboBundle::STREAM_MEDIA_TYPE);
     }
 
     private function isHtml(Response $response): bool
