@@ -55,7 +55,8 @@ final class TurboFlashListener
     }
 
     /**
-     * Checks the session is started first, so a request without flashes doesn't start one.
+     * A request without a session cookie never starts a session here. With a cookie, the session is
+     * started to read flashes added before a redirect, as in a Turbo Frame form that redirects.
      */
     private function hasFlashes(Request $request): bool
     {
@@ -65,7 +66,7 @@ final class TurboFlashListener
 
         $session = $request->getSession();
 
-        return $session->isStarted()
+        return ($session->isStarted() || $request->hasPreviousSession())
             && $session instanceof FlashBagAwareSessionInterface
             && [] !== $session->getFlashBag()->peekAll();
     }
