@@ -15,6 +15,7 @@ final class TopLayerExtension extends AbstractExtension
     public function __construct(
         private readonly string $toastsContainerId,
         private readonly array $toastDelays,
+        private readonly bool $injectIntoTurboResponses,
     ) {
     }
 
@@ -30,6 +31,7 @@ final class TopLayerExtension extends AbstractExtension
             new TwigFunction('top_layer_toasts_container_id', $this->toastsContainerId(...)),
             new TwigFunction('top_layer_toast_types', $this->toastTypes(...)),
             new TwigFunction('top_layer_toast_delay', $this->toastDelay(...)),
+            new TwigFunction('top_layer_inject_into_turbo_responses', $this->injectIntoTurboResponses(...)),
         ];
     }
 
@@ -49,6 +51,11 @@ final class TopLayerExtension extends AbstractExtension
     public function toastDelay(string $type): int
     {
         return $this->toastDelays[$this->toastType($type)->value] ?? 0;
+    }
+
+    public function injectIntoTurboResponses(): bool
+    {
+        return $this->injectIntoTurboResponses;
     }
 
     private function toastType(string $type): ToastType

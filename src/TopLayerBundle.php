@@ -64,7 +64,7 @@ final class TopLayerBundle extends AbstractBundle
         $services = $container->services();
 
         $services->get('top_layer.twig_extension')
-            ->args([$toasts['container_id'], $toasts['delays']]);
+            ->args([$toasts['container_id'], $toasts['delays'], $toasts['inject_into_turbo_responses']]);
 
         if ($toasts['inject_into_turbo_responses']) {
             // After ResponseListener (0), which sets the Turbo Stream Content-Type,

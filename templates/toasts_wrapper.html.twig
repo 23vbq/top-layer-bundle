@@ -1,1 +1,5 @@
 <div id="{{ top_layer_toasts_container_id() }}" class="top-layer-toasts" popover="manual" data-controller="23vbq--top-layer-bundle--top-layer" aria-live="polite" aria-atomic="false"></div>
+{#- In a Turbo Frame request the flashes are left to TurboFlashListener, which puts them inside the frame. -#}
+{%- if not (top_layer_inject_into_turbo_responses() and app.request and app.request.headers.has('Turbo-Frame')) %}
+{{ include('@TopLayer/_flashes.html.twig', {dismissLabel: dismissLabel|default(null)}, with_context: false) }}
+{%- endif %}
