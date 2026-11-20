@@ -213,11 +213,11 @@ The container is a fixed element in the bottom right corner and an `aria-live="p
 Some responses don't show the container's flashes: the Turbo Stream after a form in a modal doesn't render the layout, and Turbo keeps only the requested frame from a Turbo Frame response. The bundle adds the pending flashes to them on its own, so `$toaster->success()` before such a response is all it takes:
 
 - **Turbo Stream responses** (`Content-Type: text/vnd.turbo-stream.html`): the toast streams are appended after the response's own streams.
-- **Turbo Frame requests** (`Turbo-Frame: <id>` header): the toast streams are inserted right after the opening `<turbo-frame id="<id>">`, streams anywhere else would be dropped. This works for a partial template as well as for a full page rendered in the layout: the container leaves the flashes of a Turbo Frame request alone. A response without that frame is left alone too.
+- **Turbo Frame requests** (`Turbo-Frame: <id>` header): the toast streams are inserted right after the opening `<turbo-frame id="<id>">`, streams anywhere else would be dropped. This works for a partial template as well as for a full page rendered in the layout: the container leaves the flashes of a Turbo Frame request alone. The frame is found by its quoted `id` attribute, a response without it is left alone too.
 
-Nothing is added to redirects, streamed and file responses, sub-requests and requests without a session. The flashes stay in the session until a response renders them. A regular Turbo Drive visit gets them from the container in the layout.
+Nothing is added to redirects, streamed and file responses, `HEAD` requests, sub-requests and requests without a session. The flashes stay in the session until a response renders them. A regular Turbo Drive visit gets them from the container in the layout.
 
-The flashes are rendered with `_flashes.html.twig`, which consumes them. A template that still includes the flashes itself keeps working and shows each toast once, since nothing is left to add after it:
+The flashes are rendered with `_flashes.html.twig`, which consumes them. A template that still includes the flashes itself keeps working and shows each toast once, since nothing is left to add after it. The include has to be in a Turbo Stream template or inside the requested frame: an include outside the frame consumes the flashes and Turbo drops them with the rest of the page. The layout needs no include, the container takes care of it. A Turbo Stream template, for example:
 
 ```twig
 {# employee/new_success.stream.html.twig #}

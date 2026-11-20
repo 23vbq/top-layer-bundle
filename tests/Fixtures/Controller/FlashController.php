@@ -81,6 +81,16 @@ final class FlashController
     }
 
     /**
+     * Responds with the markup given in the "markup" query parameter, for checking how the frame is found.
+     */
+    public function markup(Request $request): Response
+    {
+        $this->addToast($request);
+
+        return new Response($request->query->getString('markup'));
+    }
+
+    /**
      * Adds no toast, for checking that a toast is shown once.
      */
     public function frameWithoutToast(): Response

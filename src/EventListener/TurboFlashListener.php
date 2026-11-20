@@ -33,6 +33,11 @@ final class TurboFlashListener
         $request = $event->getRequest();
         $response = $event->getResponse();
 
+        // Response::prepare() has already emptied the body of a HEAD response, rendering would only consume the flashes
+        if ($request->isMethod('HEAD')) {
+            return;
+        }
+
         if ($response->isRedirection() || $response instanceof StreamedResponse || $response instanceof BinaryFileResponse) {
             return;
         }
@@ -100,6 +105,9 @@ final class TurboFlashListener
 
     /**
      * Turbo keeps only the requested frame from the response, streams outside it would be dropped.
+     *
+     * The frame is found by a quoted id="…" or id='…', escaped like Twig escapes attributes.
+     * An unquoted id, or a ">" in an attribute before the id, isn't matched and the response is left alone.
      */
     private function insertIntoFrame(Response $response, string $frameId): void
     {
@@ -108,7 +116,8 @@ final class TurboFlashListener
             return;
         }
 
-        $pattern = '/<turbo-frame\b[^>]*\sid=(["\'])'.preg_quote($frameId, '/').'\1[^>]*>/i';
+        $id = preg_quote(htmlspecialchars($frameId, \ENT_QUOTES | \ENT_SUBSTITUTE), '/');
+        $pattern = '/<turbo-frame\b[^>]*\sid\s*=\s*(["\'])'.$id.'\1[^>]*>/i';
         if (1 !== preg_match($pattern, $content, $matches, \PREG_OFFSET_CAPTURE)) {
             return;
         }

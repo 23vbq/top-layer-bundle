@@ -2,6 +2,7 @@
 
 namespace Vbq23\TopLayerBundle\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Vbq23\TopLayerBundle\Tests\Fixtures\Controller\FlashController;
 use Vbq23\TopLayerBundle\Tests\Fixtures\TestKernel;
@@ -90,6 +91,51 @@ final class TurboFlashListenerTest extends IntegrationTestCase
 
         self::assertSame(1, substr_count($content, self::TOAST_STREAM));
         self::assertStringContainsString('<turbo-frame id="demo"><p>Frame content</p></turbo-frame>', $content);
+    }
+
+    #[DataProvider('matchingFrames')]
+    public function testFrameIsFoundByItsId(string $frame, string $frameId): void
+    {
+        $content = $this->request($this->createClient(), '/markup?'.http_build_query(['markup' => $frame.'</turbo-frame>']), ['HTTP_TURBO_FRAME' => $frameId]);
+
+        self::assertStringStartsWith($frame.self::TOAST_STREAM, $content);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function matchingFrames(): iterable
+    {
+        yield 'single quotes' => ["<turbo-frame id='demo'>", 'demo'];
+        yield 'whitespace around equals sign' => ['<turbo-frame id = "demo">', 'demo'];
+        yield 'other attributes around id' => ['<turbo-frame class="list" id="demo" src="/list">', 'demo'];
+        yield 'id escaped by Twig' => ['<turbo-frame id="a&amp;b&quot;c">', 'a&b"c'];
+    }
+
+    #[DataProvider('otherFrames')]
+    public function testFrameWithOtherIdIsLeftUnchanged(string $markup): void
+    {
+        self::assertSame($markup, $this->request($this->createClient(), '/markup?'.http_build_query(['markup' => $markup]), self::FRAME_HEADER));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function otherFrames(): iterable
+    {
+        yield 'data attribute' => ['<turbo-frame data-id="demo"></turbo-frame>'];
+        yield 'id with a prefix' => ['<turbo-frame id="demo-list"></turbo-frame>'];
+        yield 'other element' => ['<div id="demo"></div>'];
+    }
+
+    public function testHeadRequestLeavesFlashesInSession(): void
+    {
+        $client = $this->createClient();
+
+        $client->request('HEAD', '/stream');
+        self::assertSame('', (string) $client->getResponse()->getContent());
+
+        self::assertSame(1, substr_count($this->request($client, '/frame-without-toast', self::FRAME_HEADER), self::TOAST_STREAM));
     }
 
     public function testRequestWithoutSessionCookieDoesNotStartSession(): void
