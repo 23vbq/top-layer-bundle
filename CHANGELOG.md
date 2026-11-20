@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Toasts built on Symfony flash messages: `Toaster` service, container and flashes templates rendered as Turbo Streams, `top_layer_toast*` Twig functions and `top_layer.toasts` configuration
 - Toasts stay above modal dialogs and clickable: the new `top-layer` Stimulus controller keeps the toast container in the topmost modal
+- Pending flashes are added as toasts to Turbo Stream responses and inside the requested Turbo Frame, so templates no longer need to include `_flashes.html.twig`; turned off with `top_layer.toasts.inject_into_turbo_responses: false`
 
 ## [0.1.0] - 2026-11-15
 
