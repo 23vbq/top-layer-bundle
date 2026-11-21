@@ -21,3 +21,33 @@ composer require 23vbq/top-layer-bundle
 
 The bundle requires Turbo 8 (`@hotwired/turbo` `^8.0`). With AssetMapper, check the version in `importmap.php`.
 
+## Quick start
+
+Place a modal and the button that opens it inside an element with the bundle's Stimulus controller:
+
+```twig
+<div data-controller="23vbq--top-layer-bundle--dialog">
+    <button type="button"
+            data-action="23vbq--top-layer-bundle--dialog#open"
+            data-23vbq--top-layer-bundle--dialog-src-param="{{ path('employee_delete', {id: employee.id}) }}">
+        Delete
+    </button>
+
+    <twig:TopLayer:Modal id="modal-employee-action" frame="employee-action" title="Delete employee" />
+</div>
+```
+
+Clicking the button loads the URL into the modal. The page behind it renders its content inside a matching `<turbo-frame>`:
+
+```twig
+<turbo-frame id="employee-action">
+    {# form, confirmation, ... #}
+</turbo-frame>
+```
+
+## Documentation
+
+- [Modal and drawer](docs/modal-and-drawer.md) - components, props, opening and closing
+- [Turbo Stream actions](docs/turbo-streams.md) - closing dialogs and reloading frames from a server response
+- [Toasts](docs/toasts.md) - flash-based notifications, configuration, toasts above modals
+- [Styling](docs/styling.md) - CSS variables, dark mode, overriding classes and templates
