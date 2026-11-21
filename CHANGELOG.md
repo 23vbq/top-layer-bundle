@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation split from the README into `docs/`: modal and drawer, Turbo Stream actions, toasts and styling
+
 ## [0.2.0] - 2026-11-21
 
 ### Added
