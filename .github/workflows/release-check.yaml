@@ -1,0 +1,31 @@
+name: Release check
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    name: Tag matches package.json and CHANGELOG
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compare versions
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          package="$(jq -r '.version' assets/package.json)"
+          changelog="$(grep -m1 -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' CHANGELOG.md || true)"
+
+          echo "tag:          ${tag}"
+          echo "package.json: ${package}"
+          echo "CHANGELOG.md: ${changelog}"
+
+          if [ "${tag}" != "${package}" ] || [ "${tag}" != "${changelog}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match assets/package.json (${package}) and the latest CHANGELOG.md release (${changelog:-none})."
+            exit 1
+          fi
