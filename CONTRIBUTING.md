@@ -65,11 +65,12 @@ The version lives in two places and **both must be bumped in the release pull re
 Then:
 
 1. Open the release pull request titled `chore: release X.Y.Z` and merge it into `main`.
-2. Tag the squash commit of the release pull request on `main` with an annotated `vX.Y.Z` tag and push the tag. Tag that commit by its SHA, not the current `HEAD`, which may already contain pull requests merged after the release:
+2. Tag the squash commit of the release pull request on `main` with an annotated `vX.Y.Z` tag and push the tag. Tag that commit by its SHA, not the current `HEAD`, which may already contain pull requests merged after the release. Before tagging, check that the commit's `assets/package.json` version is `X.Y.Z`:
 
     ```bash
     git switch main
     git pull --ff-only
+    git show <release-commit-sha>:assets/package.json | grep '"version"'
     git tag -a vX.Y.Z -m "vX.Y.Z" <release-commit-sha>
     git push origin vX.Y.Z
     ```
@@ -80,3 +81,5 @@ Two checks guard the versions:
 
 - the `testPackageVersionMatchesLatestRelease` test fails when `assets/package.json` does not match the latest released heading in `CHANGELOG.md`, so a release pull request that bumps only one of them fails CI,
 - the `Release check` workflow runs on every pushed `v*` tag and fails when the tag does not match both `assets/package.json` and `CHANGELOG.md`.
+
+If the `Release check` fails, the tag name or the tagged commit is wrong. Delete the tag (`git push origin :refs/tags/vX.Y.Z` and `git tag -d vX.Y.Z`) and tag the release commit again with the version from `CHANGELOG.md`. If the wrong tag may already have been installed, release a new patch version instead of reusing the tag.
