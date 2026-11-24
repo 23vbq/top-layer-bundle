@@ -61,6 +61,17 @@ final class BundleWiringTest extends IntegrationTestCase
         self::assertTrue($controller['enabled'] ?? null);
     }
 
+    public function testPackageVersionMatchesLatestRelease(): void
+    {
+        $package = json_decode((string) file_get_contents(__DIR__.'/../../assets/package.json'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($package);
+
+        $changelog = (string) file_get_contents(__DIR__.'/../../CHANGELOG.md');
+        self::assertSame(1, preg_match('/^## \[(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\]/m', $changelog, $matches), 'CHANGELOG.md has no released version heading.');
+
+        self::assertSame($matches[1] ?? null, $package['version'] ?? null, 'assets/package.json version must match the latest released CHANGELOG.md heading.');
+    }
+
     #[DataProvider('bundleAssets')]
     public function testBundleAssetIsResolvedByAssetMapper(string $logicalPath): void
     {
