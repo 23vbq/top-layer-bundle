@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Documentation moved from the README to `docs/`. Links to README sections such as `README.md#toasts` or `README.md#styling` no longer work; the sections are now in `docs/modal-and-drawer.md`, `docs/turbo-streams.md`, `docs/toasts.md` and `docs/styling.md`
 
+### Fixed
+
+- `assets/package.json` now reports version `0.2.0` instead of `0.1.0`
+
 ## [0.2.0] - 2026-11-21
 
 ### Added
