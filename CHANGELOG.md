@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `CONTRIBUTING.md` with the development setup, pull request rules and release process
+
 ### Changed
 
 - Documentation moved from the README to `docs/`. Links to README sections such as `README.md#toasts` or `README.md#styling` no longer work; the sections are now in `docs/modal-and-drawer.md`, `docs/turbo-streams.md`, `docs/toasts.md` and `docs/styling.md`
