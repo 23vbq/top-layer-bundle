@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `CONTRIBUTING.md` with the development setup, pull request rules and the release process, which bumps the version in both `CHANGELOG.md` and `assets/package.json`
+- `CONTRIBUTING.md` with the development setup, pull request rules and release process
 
 ### Changed
 

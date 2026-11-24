@@ -26,11 +26,19 @@ Run the same checks as the CI before opening a pull request:
 docker compose run --rm php composer test
 docker compose run --rm php composer phpstan
 docker compose run --rm php composer cs-check
+docker compose run --rm php composer validate --strict
 ```
 
 `composer cs-fix` fixes the coding standard violations reported by `cs-check`.
 
-The CI also runs `composer validate --strict` and the tests across the supported PHP and Symfony versions, including the lowest dependencies.
+The CI runs the tests across the supported PHP and Symfony versions, including the lowest dependencies on PHP 8.2. To reproduce the lowest dependencies job locally:
+
+```bash
+docker compose run --rm php composer update --prefer-lowest --prefer-stable
+docker compose run --rm php composer test
+```
+
+Run `composer update` afterwards to go back to the highest dependencies. `composer.lock` is not committed, so this only changes your local install.
 
 ## Pull requests
 
@@ -52,17 +60,17 @@ The version lives in two places and **both must be bumped in the release pull re
     - update the comparison links at the bottom: `[Unreleased]` compares `vX.Y.Z...HEAD` and a new `[X.Y.Z]` link compares the previous tag with `vX.Y.Z`.
 2. **`assets/package.json`** - set `"version"` to `X.Y.Z`. This is the version of the bundle's Symfony UX JavaScript package, and it must match the tag.
 
-`composer.json` has no `version` field, Composer takes the version from the Git tag.
+`composer.json` has no `version` field, Composer takes the version from the Git tag. Its `extra.branch-alias` maps `dev-main` to `0.x-dev`; update it in the pull request that starts a new major version, e.g. to `1.x-dev` for `1.0.0`.
 
 Then:
 
 1. Open the release pull request titled `chore: release X.Y.Z` and merge it into `main`.
-2. Tag the merge commit on `main` with `vX.Y.Z` and push the tag:
+2. Tag the squash commit of the release pull request on `main` with an annotated `vX.Y.Z` tag and push the tag. Tag that commit by its SHA, not the current `HEAD`, which may already contain pull requests merged after the release:
 
     ```bash
     git switch main
-    git pull
-    git tag vX.Y.Z
+    git pull --ff-only
+    git tag -a vX.Y.Z -m "vX.Y.Z" <release-commit-sha>
     git push origin vX.Y.Z
     ```
 
