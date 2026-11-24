@@ -19,7 +19,7 @@ jobs:
         run: |
           tag="${GITHUB_REF_NAME#v}"
           package="$(jq -r '.version' assets/package.json)"
-          changelog="$(grep -m1 -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' CHANGELOG.md || true)"
+          changelog="$(grep -m1 -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?=\])' CHANGELOG.md || true)"
 
           echo "tag:          ${tag}"
           echo "package.json: ${package}"

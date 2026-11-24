@@ -67,7 +67,7 @@ final class BundleWiringTest extends IntegrationTestCase
         self::assertIsArray($package);
 
         $changelog = (string) file_get_contents(__DIR__.'/../../CHANGELOG.md');
-        self::assertSame(1, preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $changelog, $matches), 'CHANGELOG.md has no released version heading.');
+        self::assertSame(1, preg_match('/^## \[(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\]/m', $changelog, $matches), 'CHANGELOG.md has no released version heading.');
 
         self::assertSame($matches[1] ?? null, $package['version'] ?? null, 'assets/package.json version must match the latest released CHANGELOG.md heading.');
     }
