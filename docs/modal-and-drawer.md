@@ -1,3 +1,5 @@
+[TopLayerBundle](../README.md) · **Modal and drawer** · [Turbo Stream actions](turbo-streams.md) · [Toasts](toasts.md) · [Styling](styling.md)
+
 # Modal and drawer
 
 Both are Twig components rendering a native `<dialog>` with a header and an empty `<turbo-frame>`. Opening the dialog loads a URL into that frame, so the content is a regular Symfony page wrapped in a matching `<turbo-frame>`.

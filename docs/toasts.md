@@ -1,3 +1,5 @@
+[TopLayerBundle](../README.md) · [Modal and drawer](modal-and-drawer.md) · [Turbo Stream actions](turbo-streams.md) · **Toasts** · [Styling](styling.md)
+
 # Toasts
 
 Toasts are built on Symfony flash messages. A toast is added in PHP, stored in the session and rendered as a Turbo Stream that appends it to a container on the page.
