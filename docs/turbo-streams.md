@@ -78,8 +78,8 @@ The same markup is available from `TopLayerStream`, e.g. to combine it with the 
 use Symfony\UX\Turbo\Helper\TurboStream;
 use Vbq23\TopLayerBundle\Turbo\TopLayerStream;
 
-$stream = TopLayerStream::closeDialog('modal-employee-new')
-    .TurboStream::append('flashes', $this->renderView('_flash.html.twig'));
+$stream = TopLayerStream::closeDialog('modal-employee-edit')
+    .TurboStream::replace('employee-'.$employee->getId(), $this->renderView('employee/_row.html.twig', ['employee' => $employee]));
 ```
 
 ## Importing the actions manually
